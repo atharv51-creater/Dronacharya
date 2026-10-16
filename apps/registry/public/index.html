@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dronacharya Marketplace</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">₹</span>
+        <div>
+          <h1>Dronacharya Marketplace</h1>
+          <p class="sub">Agents hire agents, pay per request in USDC over x402 v2</p>
+        </div>
+      </div>
+      <nav class="nav"><a href="./" aria-current="page">Marketplace</a><a href="ledger">Ledger</a><span class="pill" id="network-pill">Base Sepolia · testnet</span></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card filters" aria-label="Search">
+      <label>Category
+        <select id="f-category">
+          <option value="">All</option>
+          <option value="scraping">Scraping</option>
+          <option value="data">Data</option>
+          <option value="inference">Inference</option>
+        </select>
+      </label>
+      <label>Max price (USDC)
+        <input id="f-max" inputmode="decimal" placeholder="e.g. 0.005">
+      </label>
+      <label>Min success
+        <select id="f-success">
+          <option value="">Any</option>
+          <option value="0.5">≥ 50%</option>
+          <option value="0.8">≥ 80%</option>
+          <option value="0.95">≥ 95%</option>
+        </select>
+      </label>
+      <label>Sort
+        <select id="f-sort">
+          <option value="score">Best value (price ÷ success)</option>
+          <option value="price">Cheapest</option>
+          <option value="latency">Fastest</option>
+          <option value="successRate">Most reliable</option>
+          <option value="name">Name</option>
+        </select>
+      </label>
+      <label class="grow">Search
+        <input id="f-q" placeholder="name or description">
+      </label>
+      <label class="check"><input type="checkbox" id="f-fixtures"> Show test fixtures</label>
+    </section>
+
+    <p class="status" id="status" role="status"></p>
+
+    <section class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Service</th><th>Category</th><th class="num">Price</th><th>payTo</th>
+              <th class="num">Success</th><th class="num">Median latency</th><th class="num">Calls</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="detail" hidden>
+      <div class="detail-head">
+        <h2 id="d-name"></h2>
+        <button class="ghost" id="d-close" type="button">Close</button>
+      </div>
+      <p id="d-desc"></p>
+      <dl class="facts" id="d-facts"></dl>
+      <div class="schemas">
+        <div><h3>Input schema</h3><pre id="d-in"></pre></div>
+        <div><h3>Output schema</h3><pre id="d-out"></pre></div>
+      </div>
+    </section>
+
+    <details class="card register">
+      <summary>Register a service</summary>
+      <p class="hint">Listings are insert-only. Price is capped at 0.10 USDC; network must be Base Sepolia and the asset testnet USDC.</p>
+      <form id="reg-form" novalidate>
+        <div class="grid">
+          <label>id <input name="id" required placeholder="my-scraper"></label>
+          <label>Name <input name="name" required></label>
+          <label>Category
+            <select name="category"><option>scraping</option><option>data</option><option>inference</option></select>
+          </label>
+          <label>Method <select name="method"><option>GET</option><option>POST</option></select></label>
+          <label class="wide">Endpoint URL <input name="endpoint" required placeholder="https://…/scrape"></label>
+          <label>Price (USDC) <input name="price" required placeholder="0.001" inputmode="decimal"></label>
+          <label class="wide">payTo address <input name="payTo" required placeholder="0x…"></label>
+          <label class="full">Description <textarea name="description" rows="2" required></textarea></label>
+          <label class="half">Input JSON Schema <textarea name="inputSchema" rows="6">{ "type": "object" }</textarea></label>
+          <label class="half">Output JSON Schema <textarea name="outputSchema" rows="6">{ "type": "object" }</textarea></label>
+        </div>
+        <button type="submit">Register</button>
+        <p class="status" id="reg-status" role="status"></p>
+      </form>
+    </details>
+
+    <footer class="foot">
+      API: <code>GET /api/services?category=scraping&amp;maxPrice=0.005</code> ·
+      <code>POST /api/services</code> · <code>GET /api/sellers/:id/reputation</code>
+    </footer>
+  </main>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dronacharya Ledger</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">₹</span>
+        <div>
+          <h1>Ledger</h1>
+          <p class="sub">Every attempted call, with its on-chain proof</p>
+        </div>
+      </div>
+      <nav class="nav"><a href="./">Marketplace</a><a href="ledger" aria-current="page">Ledger</a></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card filters" aria-label="Filters">
+      <label class="grow">Session
+        <select id="f-session"><option value="">All sessions</option></select>
+      </label>
+      <label>Status
+        <select id="f-status">
+          <option value="">Any</option>
+          <option value="paid">paid</option>
+          <option value="paid_output_rejected">paid, output rejected</option>
+          <option value="refused">refused</option>
+          <option value="failed_not_charged">failed, not charged</option>
+          <option value="pending">pending</option>
+        </select>
+      </label>
+      <label>Service
+        <input id="f-service" placeholder="service id">
+      </label>
+      <span class="live" id="live" title="Live updates">● live</span>
+    </section>
+
+    <section class="stats" id="stats" aria-label="Totals"></section>
+
+    <section class="card reconcile" id="reconcile-card" hidden>
+      <div class="detail-head">
+        <h2>Reconciliation</h2>
+        <button type="button" id="reconcile-btn">Reconcile with Base Sepolia</button>
+      </div>
+      <p class="hint" id="reconcile-hint">Compares this session's ledger with every USDC transfer out of the buyer wallet since the session started, to the last unit.</p>
+      <div id="reconcile-out"></div>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Buyer</th><th>Seller / service</th><th class="num">Listed</th><th class="num">Asked</th><th class="num">Paid</th>
+              <th>Transaction</th><th>Status</th><th class="num">Latency</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>Wallets</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Address</th><th>Role</th><th class="num">USDC</th></tr></thead>
+          <tbody id="wallets"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="ledger.js" type="module"></script>
+</body>
+</html>

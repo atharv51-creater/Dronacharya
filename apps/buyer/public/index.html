@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scout Buyer Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">S</span>
+        <div>
+          <h1>Scout Buyer Console</h1>
+          <p class="sub" id="buyer-line">An agent that hires agents and pays per request</p>
+        </div>
+      </div>
+      <span class="pill">Base Sepolia · testnet</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="examples" id="examples" aria-label="Example tasks"></div>
+      <form id="task-form">
+        <label class="full">Task
+          <textarea id="task" rows="3" required placeholder="From pages 1 to 4 of books.toscrape.com, find the three cheapest 5-star books…"></textarea>
+        </label>
+        <div class="row">
+          <label>Budget (USDC) <input id="budget" value="0.050" inputmode="decimal" required></label>
+          <label>Max concurrency <input id="concurrency" type="number" min="1" max="10" value="3"></label>
+          <label>If the budget is short
+            <select id="mode"><option value="partial">buy what fits, then report</option><option value="ask">ask before buying</option></select>
+          </label>
+          <label class="grow">Prefer sellers (ids, comma separated) <input id="prefer" placeholder="optional"></label>
+          <label>API token <input id="token" type="password" placeholder="remote only" autocomplete="off"></label>
+        </div>
+        <div class="actions">
+          <button type="button" class="ghost" id="estimate-btn">Estimate only</button>
+          <button type="submit" id="run-btn">Run task</button>
+          <span class="status-text" id="form-status" role="status"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" id="task-card" hidden>
+      <div class="task-head">
+        <div>
+          <span class="badge" id="status-badge">-</span>
+          <span class="muted" id="task-id"></span>
+        </div>
+        <div class="actions-inline">
+          <button type="button" class="ghost" id="start-btn" hidden>Run now</button>
+          <button type="button" class="ghost" id="cancel-btn" hidden>Cancel</button>
+        </div>
+      </div>
+      <p id="understood" class="understood"></p>
+      <ul id="notes" class="notes"></ul>
+
+      <div class="meter" aria-label="Budget">
+        <div class="meter-bar"><span class="spent" id="m-spent"></span><span class="reserved" id="m-reserved"></span></div>
+        <div class="meter-legend" id="m-legend"></div>
+      </div>
+
+      <div class="shortfall" id="shortfall" hidden>
+        <p id="shortfall-text"></p>
+        <form id="topup-form" class="inline-form">
+          <input id="topup" inputmode="decimal" placeholder="0.010" required>
+          <button type="submit">Top up and continue</button>
+        </form>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <h3>Plan and estimate</h3>
+          <div class="table-scroll"><table id="estimate"><thead><tr><th>What</th><th class="num">Calls</th><th>Seller</th><th class="num">USDC</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div>
+          <h3>Live</h3>
+          <ol class="log" id="log"></ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="answer-card" hidden>
+      <h2>Answer</h2>
+      <div id="answer"></div>
+    </section>
+
+    <section class="card" id="explain-card" hidden>
+      <h2>What was bought, from whom, why, and at what cost</h2>
+      <p id="summary" class="summary"></p>
+      <p id="narrative" class="narrative" hidden></p>
+      <div class="table-scroll">
+        <table id="purchases">
+          <thead><tr><th>#</th><th>Step</th><th>Seller</th><th>Status</th><th class="num">Listed</th><th class="num">Asked</th><th class="num">Paid</th><th>Why this seller</th><th>Tx</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <ul id="decisions" class="notes"></ul>
+      <p class="muted" id="settled-line"></p>
+    </section>
+  </main>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

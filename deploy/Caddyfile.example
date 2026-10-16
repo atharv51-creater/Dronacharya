@@ -1,0 +1,14 @@
+# A VPS with a domain: Caddy gets HTTPS certificates automatically.
+#
+# Path mode (one hostname, through the gateway):  npm run deploy:configure -- https://market.example.com
+market.example.com {
+	reverse_proxy localhost:8080
+}
+
+# Subdomain mode (no gateway):  npm run deploy:configure -- --subdomains example.com
+# registry.example.com { reverse_proxy localhost:4000 }
+# scraper.example.com  { reverse_proxy localhost:4101 }
+# fx.example.com       { reverse_proxy localhost:4102 }
+# summary.example.com  { reverse_proxy localhost:4103 }
+# chaos.example.com    { reverse_proxy localhost:4199 }
+# buyer.example.com    { reverse_proxy localhost:4200 }

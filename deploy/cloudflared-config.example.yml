@@ -1,0 +1,28 @@
+# Cloudflare named tunnel, one hostname per service (subdomain mode, no gateway needed).
+#   cloudflared tunnel create dronacharya
+#   cloudflared tunnel route dns dronacharya registry.example.com   (repeat per hostname)
+#   npm run deploy:configure -- --subdomains example.com
+#   cloudflared tunnel --config deploy/cloudflared-config.yml run dronacharya
+tunnel: dronacharya
+credentials-file: /home/YOU/.cloudflared/<TUNNEL-ID>.json
+ingress:
+  - hostname: registry.example.com
+    service: http://localhost:4000
+  - hostname: scraper.example.com
+    service: http://localhost:4101
+  - hostname: fx.example.com
+    service: http://localhost:4102
+  - hostname: summary.example.com
+    service: http://localhost:4103
+  - hostname: chaos.example.com
+    service: http://localhost:4199
+  - hostname: buyer.example.com
+    service: http://localhost:4200
+  - service: http_status:404
+
+# Single-hostname alternative (path mode, through the gateway):
+#   npm run deploy:configure -- https://market.example.com
+# ingress:
+#   - hostname: market.example.com
+#     service: http://localhost:8080
+#   - service: http_status:404

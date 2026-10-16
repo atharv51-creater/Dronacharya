@@ -1,0 +1,28 @@
+# dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# secrets: never commit these (gitleaks also runs in the pre-commit hook)
+.env
+.env.*
+!.env.example
+.secrets/
+*.pem
+*.key
+*.keystore
+wallet*.json
+
+# local state (SQLite databases, caches)
+.data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# editors and OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log

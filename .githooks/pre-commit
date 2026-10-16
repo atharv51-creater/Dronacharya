@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Blocks commits that contain secrets. Uses gitleaks when installed; otherwise a built-in scan of
+# the staged diff for private keys, API keys and secret-looking assignments.
+# Enable once per clone:  npm run hooks:install
+set -euo pipefail
+
+if command -v gitleaks >/dev/null 2>&1; then
+  exec gitleaks git --pre-commit --staged --redact --no-banner
+fi
+
+# Files that must never be committed, whatever their content.
+blocked=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/)(\.env(\..*)?|.*\.pem|.*\.key|\.secrets/.*)$' | grep -v '\.env\.example$' || true)
+if [ -n "$blocked" ]; then
+  echo "pre-commit: refusing to commit secret files:" >&2
+  echo "$blocked" | sed 's/^/  /' >&2
+  exit 1
+fi
+
+patterns=(
+  '(PRIVATE_KEY|SECRET|API_KEY|ADMIN_TOKEN)[A-Z_]*[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_+/=-]{16,}'
+  'sk-ant-[A-Za-z0-9_-]{20,}'
+  '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+)
+added=$(git diff --cached -U0 --diff-filter=ACMR -- . ':(exclude).env.example' ':(exclude)package-lock.json' | grep -E '^\+[^+]' || true)
+for p in "${patterns[@]}"; do
+  if echo "$added" | grep -Eq -- "$p"; then
+    echo "pre-commit: a staged change looks like it contains a secret (pattern: $p)." >&2
+    echo "Remove it, or install gitleaks for a precise scan. To bypass a false positive: git commit --no-verify" >&2
+    exit 1
+  fi
+done
+echo "pre-commit: no secrets found (install gitleaks for a stronger scan)"

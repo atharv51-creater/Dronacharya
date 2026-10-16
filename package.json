@@ -1,0 +1,64 @@
+{
+  "name": "dronacharya",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pay-per-call agent economy: agents hire agents and pay per request in testnet USDC over x402 v2 (Base Sepolia).",
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/registry",
+    "apps/buyer",
+    "apps/gateway",
+    "apps/sellers/*"
+  ],
+  "scripts": {
+    "start": "concurrently --kill-others-on-fail --names registry,scraper,fx,summary,chaos,buyer,gateway --prefix-colors blue,green,yellow,magenta,red,cyan,gray \"npm:start:registry\" \"npm:start:scraper\" \"npm:start:fx\" \"npm:start:summary\" \"npm:start:chaos\" \"npm:start:buyer\" \"npm:start:gateway\"",
+    "start:registry": "tsx apps/registry/src/index.ts",
+    "start:scraper": "tsx apps/sellers/scraper/src/index.ts",
+    "start:fx": "tsx apps/sellers/data/src/index.ts",
+    "start:summary": "tsx apps/sellers/inference/src/index.ts",
+    "start:chaos": "tsx apps/sellers/chaos/src/index.ts",
+    "start:buyer": "tsx apps/buyer/src/index.ts",
+    "start:gateway": "tsx apps/gateway/src/index.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx --test tests/unit/*.test.ts",
+    "check": "npm run typecheck && npm test",
+    "wallets:new": "tsx scripts/wallets.ts",
+    "wallets:balances": "tsx scripts/balances.ts",
+    "spike": "tsx scripts/spike.ts",
+    "buy": "tsx scripts/buy.ts",
+    "reconcile": "tsx scripts/reconcile.ts",
+    "test:replay": "tsx tests/live/replay.ts",
+    "test:failure": "tsx tests/live/failure.ts",
+    "test:buyer": "tsx tests/live/buyer.ts",
+    "judge": "tsx tests/judge/run.ts",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "deploy:configure": "tsx scripts/deploy-configure.ts",
+    "deploy:check": "tsx scripts/deploy-check.ts"
+  },
+  "dependencies": {
+    "@google/genai": "2.26.0",
+    "@x402/core": "2.28.0",
+    "@x402/evm": "2.28.0",
+    "@x402/express": "2.28.0",
+    "@x402/extensions": "2.28.0",
+    "@x402/fetch": "2.28.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "cheerio": "1.2.0",
+    "express": "5.1.0",
+    "robots-parser": "3.0.1",
+    "viem": "2.57.2"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/node": "22.15.35",
+    "concurrently": "10.0.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
