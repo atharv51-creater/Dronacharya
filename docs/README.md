@@ -95,8 +95,8 @@ BUYER_PRIVATE_KEY=0x...       # the ONLY key any service loads
 REGISTRY_ADMIN_TOKEN=...      # lets our own sellers update their listings
 GEMINI_API_KEY=...            # Hindi seller + buyer's task reader/narrative; without it /summarise answers 503
                               # (never charged) and the buyer reads tasks with its rules parser
-SUMMARY_MODEL=gemini-3.8-flash
-BUYER_MODEL=gemini-3.8-flash
+SUMMARY_MODEL=gemini-3.5-flash-lite
+BUYER_MODEL=gemini-3.5-flash-lite
 
 # Public URLs (set to your https tunnel hostnames for judging)
 SCRAPER_PUBLIC_URL=https://scraper.example.com

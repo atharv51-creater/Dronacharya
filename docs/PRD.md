@@ -630,7 +630,7 @@ At each checkpoint the Lead opens `dev → main`. It merges once the checkpoint'
 ## 17. Open questions
 
 1. Names and GitHub handles for Members 2–4 (needed for CODEOWNERS and review assignments).
-2. ~~LLM provider~~ Decided: Google Gemini (`GEMINI_API_KEY`, default model `gemini-3.8-flash`) for the Hindi seller and the buyer's task reader and narrative. Who holds the key on the deploy machine?
+2. ~~LLM provider~~ Decided: Google Gemini (`GEMINI_API_KEY`, default model `gemini-3.5-flash-lite`) for the Hindi seller and the buyer's task reader and narrative. Who holds the key on the deploy machine?
 3. Deploy machine for judging: a team laptop or a small VPS?
 4. A domain for the named tunnel, or ngrok static domains?
 5. Self-host a backup facilitator from the start, or only if x402.org misbehaves?

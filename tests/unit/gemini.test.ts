@@ -43,6 +43,7 @@ describe("Gemini helper", () => {
     ["running out of tokens", { text: '{"a"', candidates: [{ finishReason: "MAX_TOKENS" }] }, "truncated"],
     ["an empty answer", { text: "", candidates: [{ finishReason: "STOP" }] }, "bad_output"],
     ["a bad API key", statusError(403), "unavailable"],
+    ["a project out of billing credits", statusError(402), "unavailable"],
     ["quota exhausted", statusError(429), "busy"],
     ["an unknown model", statusError(404), "rejected"],
     ["a server error", statusError(500), "error"],

@@ -5,8 +5,12 @@
 import { ApiError, GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { env } from "./env.ts";
 
-/** Stable, fast Gemini model as of Oct 2026 (gemini-3.5-flash-lite is the cheaper choice). Override per use in .env. */
-export const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+/**
+ * Default model. Measured 17 Oct 2026: gemini-3.5-flash-lite answers a 2-text Hindi JSON request in ~3-4 s;
+ * gemini-3.8-flash took 90 s (and >45 s at thinking level LOW), too slow for a seller that must deliver
+ * inside the 60 s payment window. Override per use in .env (SUMMARY_MODEL, BUYER_MODEL).
+ */
+export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 export type LlmErrorKind = "unavailable" | "busy" | "rejected" | "blocked" | "truncated" | "bad_output" | "unreachable" | "error";
 
@@ -91,6 +95,7 @@ export async function geminiGenerate(req: GeminiRequest): Promise<GeminiResult> 
     if (err instanceof ApiError || typeof (err as { status?: unknown }).status === "number") {
       const status = (err as { status: number }).status;
       if (status === 401 || status === 403) throw new LlmError("unavailable", "Gemini rejected the API key");
+      if (status === 402) throw new LlmError("unavailable", "Gemini project has no credits left (billing): top up at https://ai.studio/projects");
       if (status === 429) throw new LlmError("busy", "Gemini rate limit or quota reached");
       if (status === 400 || status === 404) throw new LlmError("rejected", `Gemini rejected the request: ${(err as Error).message.slice(0, 200)}`);
       throw new LlmError("error", `Gemini API error ${status}`);
