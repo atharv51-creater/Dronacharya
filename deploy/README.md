@@ -10,6 +10,17 @@ Sellers, the registry and the buyer agent must be reachable over public HTTPS fo
 
 The gateway (`apps/gateway`, port 8080) forwards each path prefix to its service unchanged. Every service is mounted under its prefix (taken from its `*_PUBLIC_URL`) **and** at `/`, so local tools keep working on `http://localhost:<port>`. The gateway hands each service the public `Host`. That matters because x402 builds each 402's `resource.url` from `Host`, so a buyer sees `https://<host>/scraper/scrape?page=1`, exactly the URL it called.
 
+## Contents
+
+- [A. One tunnel (recommended for the hackathon)](#a-one-tunnel-recommended-for-the-hackathon)
+- [B. Cloudflare named tunnel, subdomains](#b-cloudflare-named-tunnel-subdomains)
+- [C. VPS + Caddy](#c-vps-caddy)
+- [Docker](#docker)
+- [Judging-day checklist](#judging-day-checklist)
+- [Security notes](#security-notes)
+
+---
+
 ## A. One tunnel (recommended for the hackathon)
 
 ```bash

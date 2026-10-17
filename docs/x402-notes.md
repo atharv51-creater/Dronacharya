@@ -2,6 +2,20 @@
 
 What we confirmed about the SDK and the testnet facilitator, by reading the installed source (`@x402/*` 2.28.0) and by running against `https://x402.org/facilitator` on 16 Oct 2026. Everyone touching payments should read this.
 
+## Contents
+
+- [Versions](#versions)
+- [Facilitator (`GET https://x402.org/facilitator/supported`)](#facilitator-get-httpsx402orgfacilitatorsupported)
+- [Wire format (as produced by our sellers)](#wire-format-as-produced-by-our-sellers)
+- [Order of operations in `@x402/express` v2 (verified in source)](#order-of-operations-in-x402express-v2-verified-in-source)
+- [What the SDK does NOT do (and the kit adds)](#what-the-sdk-does-not-do-and-the-kit-adds)
+- [Client side (how the buyer, `packages/x402-kit/src/buyer`, uses the SDK)](#client-side-how-the-buyer-packagesx402-kitsrcbuyer-uses-the-sdk)
+- [Gotchas hit while building](#gotchas-hit-while-building)
+- [Buyer decisions (build step 4)](#buyer-decisions-build-step-4)
+- [Steps 6-8 findings](#steps-6-8-findings)
+
+---
+
 ## Versions
 
 | Package | Version | Notes |

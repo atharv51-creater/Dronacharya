@@ -10,6 +10,61 @@
 
 ---
 
+## Contents
+
+- [1. Summary](#1-summary)
+- [2. Problem](#2-problem)
+- [3. Goals and non-goals](#3-goals-and-non-goals)
+- [4. Users](#4-users)
+- [5. Functional requirements](#5-functional-requirements)
+  - [5.1 Registry (FR-REG)](#51-registry-fr-reg)
+  - [5.2 Sellers (FR-SEL)](#52-sellers-fr-sel)
+  - [5.3 Buyer agent (FR-BUY)](#53-buyer-agent-fr-buy)
+  - [5.3.1 Seller selection rules and fallback (FR-RULE, FR-FB)](#531-seller-selection-rules-and-fallback-fr-rule-fr-fb)
+  - [5.4 Ledger and reconciliation (FR-LED)](#54-ledger-and-reconciliation-fr-led)
+  - [5.5 Web UI (FR-UI)](#55-web-ui-fr-ui)
+- [6. Non-functional requirements](#6-non-functional-requirements)
+  - [6.1 Payment-safety invariants (must always hold)](#61-payment-safety-invariants-must-always-hold)
+  - [6.2 Security and key hygiene](#62-security-and-key-hygiene)
+  - [6.3 Correctness](#63-correctness)
+  - [6.4 Performance and reliability](#64-performance-and-reliability)
+  - [6.5 Rules compliance](#65-rules-compliance)
+- [7. Architecture](#7-architecture)
+  - [7.1 Components](#71-components)
+  - [7.2 One paid call: where payments are checked, signed, verified and settled](#72-one-paid-call-where-payments-are-checked-signed-verified-and-settled)
+  - [7.3 Services and ports](#73-services-and-ports)
+  - [7.4 Repository layout and ownership](#74-repository-layout-and-ownership)
+- [8. Data model](#8-data-model)
+- [9. API contracts](#9-api-contracts-frozen-at-h1-changes-go-through-a-pr-reviewed-by-the-owner)
+  - [9.1 Shared types (`packages/shared`, M1)](#91-shared-types-packagesshared-m1)
+  - [9.2 `x402-kit` interface (M4: stubs at H1, real by H8)](#92-x402-kit-interface-m4-stubs-at-h1-real-by-h8)
+  - [9.3 Registry API (M1, port 4000)](#93-registry-api-m1-port-4000)
+  - [9.4 Buyer API (M1, port 4200)](#94-buyer-api-m1-port-4200)
+  - [9.5 Seller endpoints (M1 logic)](#95-seller-endpoints-m1-logic)
+- [10. Acceptance tests (the judges' tests)](#10-acceptance-tests-the-judges-tests)
+- [11. Team and ownership](#11-team-and-ownership)
+- [12. Work distribution](#12-work-distribution)
+  - [Member 1 (Lead): Backend, Agents, Deployment](#member-1-lead-backend-agents-deployment)
+  - [Member 2: Frontend UI](#member-2-frontend-ui)
+  - [Member 3: Frontend Implementation](#member-3-frontend-implementation)
+  - [Member 4: Wallet, x402](#member-4-wallet-x402)
+- [13. Hand-offs and dependencies](#13-hand-offs-and-dependencies)
+- [14. Git workflow](#14-git-workflow)
+  - [14.1 Branches](#141-branches)
+  - [14.2 Day-to-day flow](#142-day-to-day-flow)
+  - [14.3 Pull request rules](#143-pull-request-rules)
+  - [14.4 Checkpoint merges to `main`](#144-checkpoint-merges-to-main)
+  - [14.5 Conflict hotspots](#145-conflict-hotspots)
+  - [14.6 Secrets in git](#146-secrets-in-git)
+- [15. Timeline (24 h)](#15-timeline-24-h)
+- [16. Risks](#16-risks)
+- [17. Open questions](#17-open-questions)
+- [18. Definition of done](#18-definition-of-done)
+- [Appendix A: Example tasks (each uses all three categories)](#appendix-a-example-tasks-each-uses-all-three-categories)
+- [Appendix B: Wallets (fill in at H1)](#appendix-b-wallets-fill-in-at-h1)
+
+---
+
 ## 1. Summary
 
 A marketplace where AI agents hire other agents and pay **per request** in testnet USDC over **x402 v2** (HTTP `402 Payment Required`). Sellers list scraping, data and inference services in a registry. A buyer agent takes a plain-language task and a budget, picks sellers by reputation and price, pays each call, checks every result against its schema, and explains what it bought. Every paid call settles on-chain with its own transaction hash, and a ledger reconciles against the chain to the last unit.

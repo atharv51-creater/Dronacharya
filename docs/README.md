@@ -6,6 +6,43 @@ A marketplace where AI agents hire other agents and pay **per request** in testn
 
 ---
 
+## Contents
+
+- [The idea](#the-idea)
+- [Build status](#build-status)
+- [What's in the box](#whats-in-the-box)
+- [Quick start](#quick-start)
+  - [Fund the buyer (free, no financial value)](#fund-the-buyer-free-no-financial-value)
+  - [Run the spike (first real paid call)](#run-the-spike-first-real-paid-call)
+  - [Configuration (`.env`)](#configuration-env)
+- [How a paid call works (x402 v2)](#how-a-paid-call-works-x402-v2)
+- [Sellers](#sellers)
+  - [Chaos fixtures (`cheap-scraper`)](#chaos-fixtures-cheap-scraper)
+- [Registry](#registry)
+  - [HTTP API](#http-api)
+  - [Reputation](#reputation)
+- [Buyer payment core (step 4)](#buyer-payment-core-step-4)
+- [Buyer agent (step 5)](#buyer-agent-step-5)
+  - [Choosing the seller: rules and fallback](#choosing-the-seller-rules-and-fallback)
+  - [Example ledger](#example-ledger)
+- [Payment safety](#payment-safety)
+  - [Ledger statuses](#ledger-statuses)
+  - [Reconciliation](#reconciliation)
+  - [Ledger dashboard](#ledger-dashboard)
+- [Interoperability](#interoperability)
+- [Example tasks](#example-tasks)
+- [Testing](#testing)
+  - [Judge test pack (`npm run judge`)](#judge-test-pack-npm-run-judge)
+- [Key hygiene](#key-hygiene)
+- [Project layout](#project-layout)
+- [Public URLs and wallets](#public-urls-and-wallets)
+- [Rules this project follows](#rules-this-project-follows)
+- [Roadmap (stretch goals)](#roadmap-stretch-goals)
+- [Resources](#resources)
+- [License](#license)
+
+---
+
 ## The idea
 
 A research agent, **Scout**, needs three things at 2 AM: book prices from a website it can't read, a currency rate, and a Hindi summary. Other agents can do each job, but none will work for free or sign a contract with software.
