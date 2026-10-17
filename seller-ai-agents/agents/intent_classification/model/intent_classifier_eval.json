@@ -1,0 +1,24 @@
+{
+  "agent": "intent_classifier",
+  "model_type": "TF-IDF + LogisticRegression + OOS Thresholding",
+  "dataset": "CLINC150 / OOS-Eval + AuditPay Service Domain",
+  "test_samples": 10,
+  "held_out_metrics": {
+    "overall_accuracy": "40.0%",
+    "macro_f1": "35.56%",
+    "oos_detection_precision": "100.0%"
+  },
+  "raw_metrics": {
+    "overall_accuracy": 0.4,
+    "macro_f1": 0.3556,
+    "oos_accuracy": 1.0
+  },
+  "oos_threshold": 0.3,
+  "classes": [
+    "analyze_sentiment",
+    "audit_payment_log",
+    "get_weather_prediction",
+    "out_of_scope",
+    "summarize_text"
+  ]
+}

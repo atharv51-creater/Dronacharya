@@ -1,0 +1,74 @@
+{
+  "model_name": "Random Forest Temperature Forecaster v1.0",
+  "dataset_source": "Open-Meteo Historical Weather Observations",
+  "split_method": "Chronological (Zero lookahead data leakage)",
+  "train_samples": 508,
+  "val_samples": 108,
+  "test_samples": 110,
+  "metrics": {
+    "test_mae": 1.77,
+    "test_rmse": 2.24,
+    "test_r2": 0.8477,
+    "val_mae": 1.56,
+    "val_rmse": 2.02,
+    "val_r2": 0.4839
+  },
+  "top_features": [
+    "temperature_mean",
+    "temperature_min",
+    "temp_rolling_mean_3d",
+    "day_cos",
+    "temperature_max"
+  ],
+  "feature_importances": {
+    "temperature_mean": 0.6548,
+    "temperature_min": 0.16,
+    "temp_rolling_mean_3d": 0.0602,
+    "day_cos": 0.0498,
+    "temperature_max": 0.033,
+    "relative_humidity_mean": 0.0053,
+    "temp_lag3": 0.0052,
+    "day_sin": 0.0048,
+    "wind_speed_max": 0.0046,
+    "surface_pressure_mean": 0.0038,
+    "temp_lag1": 0.0038,
+    "wind_lag1": 0.0037,
+    "temp_diff_1d": 0.0036,
+    "humidity_lag1": 0.0033,
+    "temp_lag2": 0.0026,
+    "precip_lag1": 0.0009,
+    "precipitation_sum": 0.0007
+  },
+  "sample_predictions": [
+    {
+      "date": "2023-09-12",
+      "actual_next_day_temp": 33.3,
+      "predicted_next_day_temp": 32.4,
+      "error": 0.84
+    },
+    {
+      "date": "2023-09-13",
+      "actual_next_day_temp": 30.8,
+      "predicted_next_day_temp": 31.3,
+      "error": 0.5
+    },
+    {
+      "date": "2023-09-14",
+      "actual_next_day_temp": 31.4,
+      "predicted_next_day_temp": 31.0,
+      "error": 0.36
+    },
+    {
+      "date": "2023-09-15",
+      "actual_next_day_temp": 34.6,
+      "predicted_next_day_temp": 31.2,
+      "error": 3.38
+    },
+    {
+      "date": "2023-09-16",
+      "actual_next_day_temp": 35.9,
+      "predicted_next_day_temp": 34.0,
+      "error": 1.92
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "agent": "hindi_sentiment",
+  "model_type": "TF-IDF + LogisticRegression",
+  "dataset": "MTEB Hindi Sentiment Benchmark (CC BY 4.0)",
+  "test_samples": 6,
+  "held_out_metrics": {
+    "accuracy": "33.33%",
+    "macro_precision": "25.0%",
+    "macro_recall": "33.33%",
+    "macro_f1": "27.78%"
+  },
+  "raw_metrics": {
+    "accuracy": 0.3333,
+    "macro_precision": 0.25,
+    "macro_recall": 0.3333,
+    "macro_f1": 0.2778
+  },
+  "classification_report": "              precision    recall  f1-score   support\n\n    negative       0.00      0.00      0.00         2\n     neutral       0.50      0.50      0.50         2\n    positive       0.25      0.50      0.33         2\n\n    accuracy                           0.33         6\n   macro avg       0.25      0.33      0.28         6\nweighted avg       0.25      0.33      0.28         6\n"
+}

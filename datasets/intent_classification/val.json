@@ -1,0 +1,27 @@
+[
+  {
+    "text": "Can your AI condense this speech into key bullet points?",
+    "intent": "summarize_text",
+    "split": "val"
+  },
+  {
+    "text": "What is the expected climate forecast for the weekend?",
+    "intent": "get_weather_prediction",
+    "split": "val"
+  },
+  {
+    "text": "Is this restaurant review positive, negative, or neutral?",
+    "intent": "analyze_sentiment",
+    "split": "val"
+  },
+  {
+    "text": "Authenticate the wallet signature against the registered service name.",
+    "intent": "audit_payment_log",
+    "split": "val"
+  },
+  {
+    "text": "What are the latest stock market quotes for Apple and Tesla?",
+    "intent": "out_of_scope",
+    "split": "val"
+  }
+]

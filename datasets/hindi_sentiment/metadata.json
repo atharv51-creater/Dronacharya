@@ -1,0 +1,11 @@
+{
+  "dataset_name": "Hindi Sentiment Analysis (MTEB Benchmark Compatible)",
+  "label_mapping": {
+    "0": "negative",
+    "1": "neutral",
+    "2": "positive"
+  },
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "source": "https://huggingface.co/datasets/mteb/SentimentAnalysisHindi",
+  "num_classes": 3
+}

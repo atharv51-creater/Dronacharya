@@ -1,0 +1,9 @@
+{
+  "model": "Extractive Hindi Sentence Ranker",
+  "dataset": "XL-Sum Hindi (BBC World Service)",
+  "test_articles": 2,
+  "mean_rouge1_f1": 0.2447,
+  "mean_rouge2_f1": 0.0689,
+  "mean_rougeL_f1": 0.1968,
+  "mean_compression_ratio_pct": 65.31
+}

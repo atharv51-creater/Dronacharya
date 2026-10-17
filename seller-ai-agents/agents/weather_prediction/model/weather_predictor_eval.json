@@ -1,0 +1,17 @@
+{
+  "agent": "weather_predictor",
+  "model_type": "RandomForestRegressor",
+  "dataset": "Open-Meteo Historical Weather Observations",
+  "split_type": "chronological_held_out",
+  "test_samples": 110,
+  "held_out_metrics": {
+    "test_mae": "1.77 \u00b0C",
+    "test_rmse": "2.24 \u00b0C",
+    "test_r2": 0.8478
+  },
+  "raw_metrics": {
+    "test_mae": 1.77,
+    "test_rmse": 2.24,
+    "test_r2": 0.8478
+  }
+}

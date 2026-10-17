@@ -1,0 +1,56 @@
+{
+  "model_name": "Devanagari Sentiment Classifier v1.0",
+  "dataset_source": "MTEB Hindi Sentiment Analysis Benchmark",
+  "license": "CC BY 4.0",
+  "classes": [
+    "negative (0)",
+    "neutral (1)",
+    "positive (2)"
+  ],
+  "num_train_samples": 21,
+  "num_test_samples": 6,
+  "metrics": {
+    "accuracy": 0.6667,
+    "macro_precision": 0.5,
+    "macro_recall": 0.6667,
+    "macro_f1": 0.5556
+  },
+  "test_examples": [
+    {
+      "text": "कपड़े की बनावट और सिलाई बहुत उत्तम दर्जे की है। मुझे बहुत खुशी हुई।",
+      "ground_truth": "positive",
+      "predicted": "positive",
+      "confidence": 0.4151
+    },
+    {
+      "text": "होटल का कमरा बहुत साफ-सुथरा था और स्टाफ ने हमारी हर जरूरत का ख्याल रखा।",
+      "ground_truth": "positive",
+      "predicted": "positive",
+      "confidence": 0.3703
+    },
+    {
+      "text": "इंटरनेट सेवा की स्पीड बहुत धीमी है और दिन में कई बार कनेक्शन टूट जाता है।",
+      "ground_truth": "negative",
+      "predicted": "positive",
+      "confidence": 0.3837
+    },
+    {
+      "text": "गाड़ी का माइलेज कंपनी के दावों से बहुत कम है, मैं पूरी तरह असंतुष्ट हूं।",
+      "ground_truth": "negative",
+      "predicted": "positive",
+      "confidence": 0.4036
+    },
+    {
+      "text": "बैठक में आगामी तिमाही की कार्ययोजना पर सामान्य चर्चा की गई।",
+      "ground_truth": "neutral",
+      "predicted": "neutral",
+      "confidence": 0.3501
+    },
+    {
+      "text": "यह डिवाइस एंड्रॉइड 13 ऑपरेटिंग सिस्टम पर काम करता है।",
+      "ground_truth": "neutral",
+      "predicted": "neutral",
+      "confidence": 0.3694
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "pipeline_version": "1.0.0",
+  "timestamp": "2026-10-17T09:06:22.027149",
+  "total_agents": 4,
+  "successful_agents": 4,
+  "failed_agents": 0,
+  "agents": {
+    "hindi_summarizer": {
+      "status": "success",
+      "model_type": "extractive_sentence_ranker",
+      "metrics": {
+        "rouge1_f1": 0.2493,
+        "rouge2_f1": 0.0714,
+        "rougeL_f1": 0.2013,
+        "compression_ratio_pct": 64.5
+      },
+      "dataset": "XL-Sum Hindi (Held-out Test Split)",
+      "test_samples": 2
+    },
+    "weather_predictor": {
+      "status": "success",
+      "model_type": "RandomForestRegressor",
+      "metrics": {
+        "test_mae": 1.77,
+        "test_rmse": 2.24,
+        "test_r2": 0.8477
+      },
+      "dataset": "Open-Meteo Historical Weather Observations",
+      "test_samples": 110
+    },
+    "hindi_sentiment": {
+      "status": "success",
+      "model_type": "TF-IDF + LogisticRegression",
+      "metrics": {
+        "accuracy": 0.6667,
+        "macro_precision": 0.5,
+        "macro_recall": 0.6667,
+        "macro_f1": 0.5556
+      },
+      "dataset": "MTEB Hindi Sentiment Analysis Benchmark",
+      "test_samples": 6
+    },
+    "intent_classifier": {
+      "status": "success",
+      "model_type": "TF-IDF + LogisticRegression + OOS Thresholding",
+      "metrics": {
+        "overall_accuracy": 0.5,
+        "macro_f1": 0.4333,
+        "oos_accuracy": 1.0
+      },
+      "dataset": "CLINC150 / OOS-Eval + AuditPay Service Domain",
+      "test_samples": 10
+    }
+  }
+}

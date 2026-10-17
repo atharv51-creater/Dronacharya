@@ -1,0 +1,104 @@
+{
+  "model_name": "CLINC150-Aligned Intent Router v1.0",
+  "dataset_source": "CLINC150 / OOS-Eval + AuditPay Service Domain",
+  "license": "CC BY 4.0",
+  "supported_intents": [
+    "analyze_sentiment",
+    "audit_payment_log",
+    "get_weather_prediction",
+    "out_of_scope",
+    "summarize_text"
+  ],
+  "train_samples": 30,
+  "test_samples": 10,
+  "confidence_threshold": 0.3,
+  "metrics": {
+    "overall_accuracy": 0.5,
+    "macro_precision": 0.4667,
+    "macro_recall": 0.5,
+    "macro_f1": 0.4333,
+    "oos_accuracy": 1.0
+  },
+  "test_examples": [
+    {
+      "query": "\u0939\u093f\u0902\u0926\u0940 \u0932\u0947\u0916 \u0915\u093e \u0938\u0902\u0915\u094d\u0937\u0947\u092a\u0923 \u0915\u0930\u0947\u0902 \u0924\u093e\u0915\u093f \u091c\u0932\u094d\u0926\u0940 \u092a\u0922\u093c\u093e \u091c\u093e \u0938\u0915\u0947\u0964",
+      "ground_truth": "summarize_text",
+      "predicted": "out_of_scope",
+      "confidence": 0.2489,
+      "is_supported": false,
+      "recommended_service": null
+    },
+    {
+      "query": "Summarize this technical documentation into a brief overview.",
+      "ground_truth": "summarize_text",
+      "predicted": "out_of_scope",
+      "confidence": 0.2914,
+      "is_supported": false,
+      "recommended_service": null
+    },
+    {
+      "query": "\u0915\u0932 \u092c\u093e\u0930\u093f\u0936 \u0939\u094b\u0928\u0947 \u0915\u0940 \u0915\u094d\u092f\u093e \u0938\u0902\u092d\u093e\u0935\u0928\u093e \u0939\u0948?",
+      "ground_truth": "get_weather_prediction",
+      "predicted": "out_of_scope",
+      "confidence": 0.2804,
+      "is_supported": false,
+      "recommended_service": null
+    },
+    {
+      "query": "Predict the next-day mean temperature from these sensor readings.",
+      "ground_truth": "get_weather_prediction",
+      "predicted": "get_weather_prediction",
+      "confidence": 0.316,
+      "is_supported": true,
+      "recommended_service": "weather-prediction-agent"
+    },
+    {
+      "query": "\u0907\u0938 \u0915\u092e\u0947\u0902\u091f \u0915\u093e \u092d\u093e\u0935 \u0935\u093f\u0936\u094d\u0932\u0947\u0937\u0923 \u0915\u0930\u0915\u0947 \u092c\u0924\u093e\u090f\u0902 \u0915\u093f \u092f\u0939 \u092a\u0949\u091c\u093f\u091f\u093f\u0935 \u0939\u0948 \u092f\u093e \u0928\u0947\u0917\u0947\u091f\u093f\u0935\u0964",
+      "ground_truth": "analyze_sentiment",
+      "predicted": "summarize_text",
+      "confidence": 0.3625,
+      "is_supported": true,
+      "recommended_service": "hindi-summarizer-ai"
+    },
+    {
+      "query": "Evaluate the customer sentiment on this warranty claim experience.",
+      "ground_truth": "analyze_sentiment",
+      "predicted": "out_of_scope",
+      "confidence": 0.2941,
+      "is_supported": false,
+      "recommended_service": null
+    },
+    {
+      "query": "Download the PDF audit certificate for compliance verification.",
+      "ground_truth": "audit_payment_log",
+      "predicted": "audit_payment_log",
+      "confidence": 0.3737,
+      "is_supported": true,
+      "recommended_service": "zk-proof-verifier"
+    },
+    {
+      "query": "Check if there are any rejected payment attempts under my account.",
+      "ground_truth": "audit_payment_log",
+      "predicted": "audit_payment_log",
+      "confidence": 0.3298,
+      "is_supported": true,
+      "recommended_service": "zk-proof-verifier"
+    },
+    {
+      "query": "\u092e\u0941\u091d\u0947 \u090f\u0915 \u0905\u091a\u094d\u091b\u0940 \u092c\u093f\u0930\u092f\u093e\u0928\u0940 \u092c\u0928\u093e\u0928\u0947 \u0915\u0940 \u0935\u093f\u0927\u093f \u092c\u0924\u093e\u090f\u0902\u0964",
+      "ground_truth": "out_of_scope",
+      "predicted": "out_of_scope",
+      "confidence": 0.2788,
+      "is_supported": false,
+      "recommended_service": null
+    },
+    {
+      "query": "Can you order groceries from the nearby supermarket?",
+      "ground_truth": "out_of_scope",
+      "predicted": "out_of_scope",
+      "confidence": 0.2612,
+      "is_supported": false,
+      "recommended_service": null
+    }
+  ]
+}

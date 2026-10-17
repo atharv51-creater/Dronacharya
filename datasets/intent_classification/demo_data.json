@@ -1,0 +1,227 @@
+[
+  {
+    "text": "Can you summarize this long Hindi news article for me?",
+    "intent": "summarize_text",
+    "split": "train"
+  },
+  {
+    "text": "कृपया इस संपादकीय लेख का संक्षिप्त सारांश तैयार करें।",
+    "intent": "summarize_text",
+    "split": "train"
+  },
+  {
+    "text": "Generate a concise 3-sentence summary of this document.",
+    "intent": "summarize_text",
+    "split": "train"
+  },
+  {
+    "text": "I need an extractive summary of this research paper.",
+    "intent": "summarize_text",
+    "split": "train"
+  },
+  {
+    "text": "इस बड़े पैराग्राफ को छोटा करके मुख्य बिंदु बताएं।",
+    "intent": "summarize_text",
+    "split": "train"
+  },
+  {
+    "text": "Provide an executive summary of this audit report.",
+    "intent": "summarize_text",
+    "split": "train"
+  },
+  {
+    "text": "Can your AI condense this speech into key bullet points?",
+    "intent": "summarize_text",
+    "split": "val"
+  },
+  {
+    "text": "हिंदी लेख का संक्षेपण करें ताकि जल्दी पढ़ा जा सके।",
+    "intent": "summarize_text",
+    "split": "test"
+  },
+  {
+    "text": "Summarize this technical documentation into a brief overview.",
+    "intent": "summarize_text",
+    "split": "test"
+  },
+  {
+    "text": "What will be the temperature in Delhi tomorrow?",
+    "intent": "get_weather_prediction",
+    "split": "train"
+  },
+  {
+    "text": "Predict tomorrow's maximum and minimum temperature.",
+    "intent": "get_weather_prediction",
+    "split": "train"
+  },
+  {
+    "text": "Can you forecast the weather conditions for the next 24 hours?",
+    "intent": "get_weather_prediction",
+    "split": "train"
+  },
+  {
+    "text": "Is it going to rain tomorrow based on current humidity levels?",
+    "intent": "get_weather_prediction",
+    "split": "train"
+  },
+  {
+    "text": "कल का तापमान कितना रहने का अनुमान है?",
+    "intent": "get_weather_prediction",
+    "split": "train"
+  },
+  {
+    "text": "Run a regression forecast on historical temperature trends.",
+    "intent": "get_weather_prediction",
+    "split": "train"
+  },
+  {
+    "text": "What is the expected climate forecast for the weekend?",
+    "intent": "get_weather_prediction",
+    "split": "val"
+  },
+  {
+    "text": "कल बारिश होने की क्या संभावना है?",
+    "intent": "get_weather_prediction",
+    "split": "test"
+  },
+  {
+    "text": "Predict the next-day mean temperature from these sensor readings.",
+    "intent": "get_weather_prediction",
+    "split": "test"
+  },
+  {
+    "text": "Classify the sentiment of this customer product review.",
+    "intent": "analyze_sentiment",
+    "split": "train"
+  },
+  {
+    "text": "क्या यह ग्राहक समीक्षा सकारात्मक है या नकारात्मक?",
+    "intent": "analyze_sentiment",
+    "split": "train"
+  },
+  {
+    "text": "Detect if this user feedback is expressing frustration or satisfaction.",
+    "intent": "analyze_sentiment",
+    "split": "train"
+  },
+  {
+    "text": "Determine the emotional polarity of this Hindi tweet.",
+    "intent": "analyze_sentiment",
+    "split": "train"
+  },
+  {
+    "text": "इस फीडबैक में ग्राहक का क्या रुख है? सकारात्मक या असंतुष्ट?",
+    "intent": "analyze_sentiment",
+    "split": "train"
+  },
+  {
+    "text": "Analyze the tone and sentiment score of these service ratings.",
+    "intent": "analyze_sentiment",
+    "split": "train"
+  },
+  {
+    "text": "Is this restaurant review positive, negative, or neutral?",
+    "intent": "analyze_sentiment",
+    "split": "val"
+  },
+  {
+    "text": "इस कमेंट का भाव विश्लेषण करके बताएं कि यह पॉजिटिव है या नेगेटिव।",
+    "intent": "analyze_sentiment",
+    "split": "test"
+  },
+  {
+    "text": "Evaluate the customer sentiment on this warranty claim experience.",
+    "intent": "analyze_sentiment",
+    "split": "test"
+  },
+  {
+    "text": "Verify this Algorand transaction hash in the audit log.",
+    "intent": "audit_payment_log",
+    "split": "train"
+  },
+  {
+    "text": "Generate a cryptographic Merkle root audit certificate for my service.",
+    "intent": "audit_payment_log",
+    "split": "train"
+  },
+  {
+    "text": "Check if this x402 payment settled on testnet indexer.",
+    "intent": "audit_payment_log",
+    "split": "train"
+  },
+  {
+    "text": "Lookup the receipt proof for transaction ID K2QZ7J5Y6X4M8W1V.",
+    "intent": "audit_payment_log",
+    "split": "train"
+  },
+  {
+    "text": "क्या इस ट्रांजेक्शन आईडी का पेमेंट ब्लॉकचेन पर रिकॉर्ड हो गया है?",
+    "intent": "audit_payment_log",
+    "split": "train"
+  },
+  {
+    "text": "Export a tamper-evident audit report for this month's revenue.",
+    "intent": "audit_payment_log",
+    "split": "train"
+  },
+  {
+    "text": "Authenticate the wallet signature against the registered service name.",
+    "intent": "audit_payment_log",
+    "split": "val"
+  },
+  {
+    "text": "Download the PDF audit certificate for compliance verification.",
+    "intent": "audit_payment_log",
+    "split": "test"
+  },
+  {
+    "text": "Check if there are any rejected payment attempts under my account.",
+    "intent": "audit_payment_log",
+    "split": "test"
+  },
+  {
+    "text": "Book a one-way flight from New York to London for next Tuesday.",
+    "intent": "out_of_scope",
+    "split": "train"
+  },
+  {
+    "text": "Can you give me a recipe for authentic Italian sourdough pizza?",
+    "intent": "out_of_scope",
+    "split": "train"
+  },
+  {
+    "text": "Who won the ICC cricket world cup in 2011?",
+    "intent": "out_of_scope",
+    "split": "train"
+  },
+  {
+    "text": "Play some relaxing acoustic guitar music on Spotify.",
+    "intent": "out_of_scope",
+    "split": "train"
+  },
+  {
+    "text": "What is the capital city of Australia?",
+    "intent": "out_of_scope",
+    "split": "train"
+  },
+  {
+    "text": "Write a python program to invert a binary tree.",
+    "intent": "out_of_scope",
+    "split": "train"
+  },
+  {
+    "text": "What are the latest stock market quotes for Apple and Tesla?",
+    "intent": "out_of_scope",
+    "split": "val"
+  },
+  {
+    "text": "मुझे एक अच्छी बिरयानी बनाने की विधि बताएं।",
+    "intent": "out_of_scope",
+    "split": "test"
+  },
+  {
+    "text": "Can you order groceries from the nearby supermarket?",
+    "intent": "out_of_scope",
+    "split": "test"
+  }
+]

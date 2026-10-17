@@ -1,0 +1,19 @@
+{
+  "dataset_name": "CLINC150-Aligned Marketplace Intent & OOS Dataset",
+  "intents": [
+    "summarize_text",
+    "get_weather_prediction",
+    "analyze_sentiment",
+    "audit_payment_log",
+    "out_of_scope"
+  ],
+  "target_service_mapping": {
+    "summarize_text": "hindi-summarizer-ai",
+    "get_weather_prediction": "weather-prediction-agent",
+    "analyze_sentiment": "hindi-sentiment-analyzer",
+    "audit_payment_log": "zk-proof-verifier",
+    "out_of_scope": null
+  },
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "source": "https://github.com/clinc/oos-eval"
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "text": "हिंदी लेख का संक्षेपण करें ताकि जल्दी पढ़ा जा सके।",
+    "intent": "summarize_text",
+    "split": "test"
+  },
+  {
+    "text": "Summarize this technical documentation into a brief overview.",
+    "intent": "summarize_text",
+    "split": "test"
+  },
+  {
+    "text": "कल बारिश होने की क्या संभावना है?",
+    "intent": "get_weather_prediction",
+    "split": "test"
+  },
+  {
+    "text": "Predict the next-day mean temperature from these sensor readings.",
+    "intent": "get_weather_prediction",
+    "split": "test"
+  },
+  {
+    "text": "इस कमेंट का भाव विश्लेषण करके बताएं कि यह पॉजिटिव है या नेगेटिव।",
+    "intent": "analyze_sentiment",
+    "split": "test"
+  },
+  {
+    "text": "Evaluate the customer sentiment on this warranty claim experience.",
+    "intent": "analyze_sentiment",
+    "split": "test"
+  },
+  {
+    "text": "Download the PDF audit certificate for compliance verification.",
+    "intent": "audit_payment_log",
+    "split": "test"
+  },
+  {
+    "text": "Check if there are any rejected payment attempts under my account.",
+    "intent": "audit_payment_log",
+    "split": "test"
+  },
+  {
+    "text": "मुझे एक अच्छी बिरयानी बनाने की विधि बताएं।",
+    "intent": "out_of_scope",
+    "split": "test"
+  },
+  {
+    "text": "Can you order groceries from the nearby supermarket?",
+    "intent": "out_of_scope",
+    "split": "test"
+  }
+]
