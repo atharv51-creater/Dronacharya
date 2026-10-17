@@ -1,0 +1,31 @@
+# Google Cloud ignore file (.gcloudignore)
+# Prevents uploading large binary trees, local caches, and secret keys
+
+.git/
+.githooks/
+.github/
+
+# Dependency directories (GCP installs dependencies on the server)
+node_modules/
+**/node_modules/
+dronacharya-frontend/node_modules/
+
+# Local state & logs
+.data/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets - Never upload raw .env containing private keys!
+# Use Cloud Secret Manager or --set-env-vars in gcloud deploy
+.env
+.env.local
+.env.*.local
+
+# IDE & OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

@@ -2,9 +2,10 @@
 
 import type { Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { createLogger, env, envBool, envInt, fromUnits, loadEnv, requireEnv, toUnits } from "@dron/shared";
+import { createLogger, env, envBool, envInt, fromUnits, loadEnv, mongoConfigured, mongoDb, requireEnv, toUnits } from "@dron/shared";
 import { assertTestnet, basePathOf, mountAt, usdcBalance } from "@dron/x402-kit";
 import { createBuyerApp } from "./app.ts";
+import { TaskArchive } from "./archive.ts";
 import { llmAvailable } from "./parse/llm.ts";
 import { TaskManager } from "./tasks.ts";
 
@@ -24,9 +25,18 @@ const account = privateKeyToAccount(requireEnv("BUYER_PRIVATE_KEY") as Hex);
 const apiToken = env("BUYER_API_TOKEN");
 if (!apiToken) log.warn("BUYER_API_TOKEN is not set: only requests from this machine can create tasks");
 
-const manager = new TaskManager({ registryUrl, account, log, maxBudgetUnits: toUnits(env("BUYER_MAX_TASK_BUDGET", "0.50")!) });
+// Task history in MongoDB Atlas (optional): finished tasks survive restarts and stay browsable.
+const archive = mongoConfigured() ? new TaskArchive(() => mongoDb(), log) : undefined;
+log.info(archive ? "task history: MongoDB Atlas (tasks collection)" : "task history: in memory only (MONGODB_URI not set)");
+const manager = new TaskManager({
+  registryUrl,
+  account,
+  log,
+  maxBudgetUnits: toUnits(env("BUYER_MAX_TASK_BUDGET", "0.50")!),
+  archive: archive ? (s) => archive.save(s) : undefined,
+});
 const publicUrl = env("BUYER_PUBLIC_URL", `http://localhost:${port}`)!;
-const app = mountAt(createBuyerApp({ manager, log, apiToken, registryUrl, allowLoopback: envBool("BUYER_ALLOW_LOOPBACK", true) }), basePathOf(publicUrl));
+const app = mountAt(createBuyerApp({ manager, log, apiToken, registryUrl, allowLoopback: envBool("BUYER_ALLOW_LOOPBACK", true), archive }), basePathOf(publicUrl));
 
 app.listen(port, () => {
   log.info(`listening on :${port}`, { console: `${publicUrl.replace(/\/+$/, "")}/`, buyer: account.address, parser: llmAvailable() ? "gemini + rules" : "rules (GEMINI_API_KEY not set)" });

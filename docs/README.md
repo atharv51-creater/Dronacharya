@@ -250,6 +250,23 @@ Sellers list services with: `id`, `sellerId`, `name`, `category` (`data` | `infe
 
 **Registration rules:** https endpoint (http only for localhost in development), price above 0 and at most 0.10 USDC, network `eip155:84532`, asset Base Sepolia USDC, a valid payTo, and schemas that compile (draft-07 or 2020-12). Public registrations are **insert-only**, so nobody can overwrite an existing listing's payTo. Our own sellers update theirs with `REGISTRY_ADMIN_TOKEN`.
 
+### Storage: SQLite plus MongoDB Atlas
+
+The registry keeps its data in a local SQLite file (`.data/registry.db`) for fast, synchronous reads. With `MONGODB_URI` set, **MongoDB Atlas holds a durable cloud copy of every table**:
+
+| Atlas collection | What | Written by |
+|---|---|---|
+| `services` | Every listing (registrations, admin and public) | registry |
+| `users` | Portal registrations | registry |
+| `sessions` | Buyer sessions (start block, buyer wallet) | registry |
+| `ledger` | Every transaction: pending, paid, refused, failed, with tx hash and on-chain confirmation; amounts as exact strings | registry |
+| `auth_sessions` | Google sign-in sessions, stored as SHA-256 of the token (expired ones are deleted by a TTL index) | registry |
+| `tasks` | Scout's task history: the full task view and event log, so finished tasks survive restarts | buyer agent |
+
+How the registry stays in sync: SQLite triggers write each change into an outbox table in the same transaction, and a background loop pushes the outbox to Atlas with idempotent upserts. If Atlas is unreachable, changes wait in the outbox (even across restarts) and are delivered when it is back. The first run against a database uploads everything once; a registry that starts with an **empty** local database (new machine, container or deploy) **restores everything from Atlas** before serving. `GET /api/health` shows the state (`storage.atlas.pendingWrites`).
+
+Not in Atlas, on purpose: each seller's payment replay store (`.data/<seller>-nonces.db`) stays local, because it must be atomic and instant to stop a payment being used twice. Use one `MONGODB_DB` per deployment (two registries sharing a database would overwrite each other's listings).
+
 ### HTTP API
 
 | Method | Path | Description |

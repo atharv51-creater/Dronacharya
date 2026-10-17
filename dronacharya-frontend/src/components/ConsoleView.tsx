@@ -57,7 +57,7 @@ export type LogLine = { key: string; time: string; text: string; kind: "info" | 
 export type ActivityLine = LogLine & { taskId: string };
 
 const BUDGET_CHIPS = ["0.010", "0.025", "0.050", "0.100"];
-const TERMINAL = new Set(["completed", "partial", "failed", "cancelled"]);
+const TERMINAL = new Set(["completed", "partial", "failed", "cancelled", "interrupted"]);
 const RECONNECT_MS = [1000, 2000, 5000];
 const TYPING_HINT = "Only digits and one decimal point, up to 6 decimals";
 
@@ -94,7 +94,7 @@ const DEFAULT_EXAMPLES = [
 ];
 
 const EVENT_TYPES = [
-  "task_created", "parsed", "estimate", "status", "wallet", "budget", "call_started", "call_finished", "fallback",
+  "task_created", "parsed", "estimate", "status", "wallet", "budget", "step_running", "call_started", "call_finished", "fallback",
   "waiting_for_budget", "step_done", "step_blocked", "step_failed", "progress", "needs_budget", "answer", "settled",
   "narrative", "topped_up", "error",
 ];
@@ -161,7 +161,7 @@ function describe(type: string, p: any): Omit<LogLine, "key" | "time"> | null {
 const statusStyle = (s: string) =>
   s === "completed"
     ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
-    : s === "partial" || s === "needs_budget"
+    : s === "partial" || s === "needs_budget" || s === "interrupted"
     ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
     : s === "failed" || s === "cancelled"
     ? "bg-rose-500/15 border-rose-500/30 text-rose-300"
@@ -431,6 +431,8 @@ export const ConsoleView: React.FC<ConsoleViewProps> = ({ explorerUrl = "https:/
   };
 
   const d = taskDetail;
+  const runningStepsCount = d?.steps.filter((s) => s.state === "running").length ?? 0;
+  const maxParallel = d?.request?.max_concurrency ?? concurrency;
   const taskTotal = d ? BigInt(d.budget.totalUnits || "0") : 0n;
   const topUpRoom = maxUnits !== null ? maxUnits - taskTotal : null;
   const topUpCheck = checkAmount(topUpAmount, { what: "an amount", maxUnits: topUpRoom });
@@ -911,17 +913,40 @@ export const ConsoleView: React.FC<ConsoleViewProps> = ({ explorerUrl = "https:/
             <Card
               title={d.steps.length ? "Steps" : "Plan & estimate"}
               icon={<ListChecks className="h-4 w-4 text-purple-400" />}
-              right={d.estimate && <span className="font-mono text-xs text-purple-300">est. {d.estimate.totalUsdc} USDC</span>}
+              right={
+                <div className="flex items-center gap-2">
+                  {d.steps.length > 0 && ACTIVE.has(d.status) && (
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                      {runningStepsCount > 0 ? `${runningStepsCount}/${maxParallel} parallel calling` : `Parallel cap: ${maxParallel}`}
+                    </span>
+                  )}
+                  {d.estimate && <span className="font-mono text-xs text-purple-300">est. {d.estimate.totalUsdc} USDC</span>}
+                </div>
+              }
             >
               {d.steps.length > 0 ? (
                 <ol className="space-y-2.5">
                   {d.steps.map((st) => (
                     <li key={st.id} className="flex items-start gap-2.5">
                       <StepIcon state={st.state} />
-                      <div className="min-w-0 text-xs">
-                        <div className={st.state === "pending" ? "text-slate-500" : "text-slate-200"}>{st.description}</div>
-                        {st.sellerId && <div className="text-[11px] text-purple-300/80 font-mono">{st.sellerId}</div>}
-                        {st.error && <div className="text-[11px] text-rose-300">{st.error}</div>}
+                      <div className="min-w-0 text-xs flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={st.state === "pending" ? "text-slate-400" : "text-slate-200"}>
+                            {st.description}
+                          </span>
+                          {st.state === "running" && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono animate-pulse">
+                              calling payment…
+                            </span>
+                          )}
+                          {st.state === "pending" && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 border border-slate-700/60 font-mono">
+                              queued (waiting for parallel slot)
+                            </span>
+                          )}
+                        </div>
+                        {st.sellerId && <div className="text-[11px] text-purple-300/80 font-mono mt-0.5">{st.sellerId}</div>}
+                        {st.error && <div className="text-[11px] text-rose-300 mt-0.5">{st.error}</div>}
                       </div>
                     </li>
                   ))}

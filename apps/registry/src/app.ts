@@ -49,6 +49,8 @@ export interface RegistryOptions {
   balanceOf?: (address: Address) => Promise<bigint>;
   /** Where reconciliation's transfers came from on the last scan ("etherscan" | "rpc" | "mixed"), when known. */
   chainSourceName?: () => string | null;
+  /** Where the data lives (SQLite, plus MongoDB Atlas when MONGODB_URI is set). No secrets. */
+  storage?: () => Record<string, unknown>;
   /** Recent USDC transfers per wallet (Etherscan); omitted when ETHERSCAN_API_KEY is not set. */
   history?: { recent(wallet: Address, limit?: number): Promise<WalletTransfer[]> };
   /** Test hooks for the auth module. */
@@ -97,7 +99,7 @@ export function createRegistryApp(opts: RegistryOptions) {
   };
 
   app.get("/api/health", (_req, res) => {
-    res.json({ ok: true, services: store.all().length });
+    res.json({ ok: true, services: store.all().length, storage: opts.storage?.() ?? { primary: "sqlite", atlas: { enabled: false } } });
   });
 
   app.get("/api/meta", (_req, res) => {
@@ -561,7 +563,7 @@ export function createRegistryApp(opts: RegistryOptions) {
   });
 
   // Google sign-in sessions and wallet-proven seller registration (used by the web UI).
-  app.use(createAuthRouter({ store, log, ...opts.auth }));
+  app.use(createAuthRouter({ store, log, db, ...opts.auth }));
 
   app.use("/api", (_req, res) => {
     res.status(404).json({ error: "not_found" });

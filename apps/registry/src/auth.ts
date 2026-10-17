@@ -6,15 +6,17 @@
 //   POST /api/auth/wallet-challenge  { serviceId, payTo } -> { message, expiresAt }   (session required, 10 min, one use)
 //   POST /api/sellers/register       { listing, message, signature }                (session required)
 //
+// Sessions are random tokens valid for 12 hours, kept in memory and (when a database is given) in the
+// auth_sessions table under the token's SHA-256, so a restart does not sign everyone out.
 // Sessions are random tokens held in memory for 12 hours. canRunScout comes from SCOUT_ALLOWED_EMAILS and
 // isAdmin from ADMIN_EMAILS (both empty by default). The gateway asks /api/auth/session before letting a
 // session spend the buyer's wallet; this module never spends anything itself.
 
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import express, { type Request, type Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { getAddress, isAddress, type Hex } from "viem";
-import { CHAIN_ID, env, type Logger } from "@dron/shared";
+import { CHAIN_ID, env, type Database, type Logger } from "@dron/shared";
 import { publicClient } from "@dron/x402-kit";
 import type { ServiceStore } from "./db.ts";
 import { validateListing } from "./validation.ts";
@@ -33,9 +35,29 @@ export interface SessionUser {
 const list = (name: string) =>
   new Set((env(name) ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean));
 
-export function createAuthRouter(opts: { store: ServiceStore; log: Logger; verifyIdToken?: (idToken: string, audience: string) => Promise<Record<string, unknown> | undefined>; verifySignature?: (address: Hex, message: string, signature: Hex) => Promise<boolean> }) {
+const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
+
+export function createAuthRouter(opts: { store: ServiceStore; log: Logger; db?: Database; verifyIdToken?: (idToken: string, audience: string) => Promise<Record<string, unknown> | undefined>; verifySignature?: (address: Hex, message: string, signature: Hex) => Promise<boolean> }) {
   const { store, log } = opts;
-  const sessions = new Map<string, { user: SessionUser; expires: number }>();
+  const sessions = new Map<string, { user: SessionUser; expires: number }>(); // key: SHA-256 of the token
+  const persisted = opts.db
+    ? {
+        save: opts.db.prepare(`INSERT OR REPLACE INTO auth_sessions (id, user, expires) VALUES (?, ?, ?)`),
+        remove: opts.db.prepare(`DELETE FROM auth_sessions WHERE id = ?`),
+        purge: opts.db.prepare(`DELETE FROM auth_sessions WHERE expires < ?`),
+      }
+    : undefined;
+  if (opts.db) {
+    const rows = opts.db.prepare(`SELECT id, user, expires FROM auth_sessions WHERE expires > ?`).all(Date.now()) as { id: string; user: string; expires: number }[];
+    for (const r of rows) {
+      try {
+        sessions.set(r.id, { user: JSON.parse(r.user) as SessionUser, expires: Number(r.expires) });
+      } catch {
+        // unreadable row: ignore it (it expires on its own)
+      }
+    }
+  }
+  let lastPurge = 0;
   const challenges = new Map<string, { email: string; serviceId: string; payTo: string; expires: number }>();
   const google = new OAuth2Client();
   const verifyIdToken =
@@ -48,11 +70,18 @@ export function createAuthRouter(opts: { store: ServiceStore; log: Logger; verif
     const now = Date.now();
     for (const [k, v] of sessions) if (v.expires < now) sessions.delete(k);
     for (const [k, v] of challenges) if (v.expires < now) challenges.delete(k);
+    if (persisted && now - lastPurge > 60_000) {
+      lastPurge = now;
+      persisted.purge.run(now);
+    }
   };
   const sessionOf = (req: Request) => {
     sweep();
     const h = req.get("authorization") ?? "";
-    return h.startsWith("Bearer ") ? sessions.get(h.slice(7).trim()) : undefined;
+    const s = h.startsWith("Bearer ") ? sessions.get(hashToken(h.slice(7).trim())) : undefined;
+    if (!s) return undefined;
+    // Allow-lists are read on every request: removing an email takes effect at once, even for live sessions.
+    return { ...s, user: { ...s.user, canRunScout: list("SCOUT_ALLOWED_EMAILS").has(s.user.email), isAdmin: list("ADMIN_EMAILS").has(s.user.email) } };
   };
   const needSession = (req: Request, res: Response) => {
     const s = sessionOf(req);
@@ -92,7 +121,9 @@ export function createAuthRouter(opts: { store: ServiceStore; log: Logger; verif
       isAdmin: list("ADMIN_EMAILS").has(email),
     };
     const token = randomBytes(32).toString("base64url");
-    sessions.set(token, { user, expires: Date.now() + SESSION_MS });
+    const expires = Date.now() + SESSION_MS;
+    sessions.set(hashToken(token), { user, expires });
+    persisted?.save.run(hashToken(token), JSON.stringify(user), expires);
     log.info("signed in", { canRunScout: user.canRunScout, isAdmin: user.isAdmin });
     res.json({ ok: true, token, user, expiresAt: new Date(Date.now() + SESSION_MS).toISOString() });
   });
@@ -104,7 +135,11 @@ export function createAuthRouter(opts: { store: ServiceStore; log: Logger; verif
 
   r.post("/api/auth/logout", (req, res) => {
     const h = req.get("authorization") ?? "";
-    if (h.startsWith("Bearer ")) sessions.delete(h.slice(7).trim());
+    if (h.startsWith("Bearer ")) {
+      const key = hashToken(h.slice(7).trim());
+      sessions.delete(key);
+      persisted?.remove.run(key);
+    }
     res.json({ ok: true });
   });
 

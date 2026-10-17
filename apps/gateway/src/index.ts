@@ -8,7 +8,7 @@ import { createGateway, parseRoutes } from "./proxy.ts";
 
 loadEnv();
 const log = createLogger("gateway");
-const port = envInt("GATEWAY_PORT", 8080);
+const port = envInt("PORT", envInt("GATEWAY_PORT", 8080));
 const local = (p: string, d: number) => `http://127.0.0.1:${envInt(p, d)}`;
 const routes = parseRoutes(
   env("GATEWAY_ROUTES") ??

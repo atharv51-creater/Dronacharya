@@ -15,6 +15,7 @@ The gateway (`apps/gateway`, port 8080) forwards each path prefix to its service
 - [A. One tunnel (recommended for the hackathon)](#a-one-tunnel-recommended-for-the-hackathon)
 - [B. Cloudflare named tunnel, subdomains](#b-cloudflare-named-tunnel-subdomains)
 - [C. VPS + Caddy](#c-vps-caddy)
+- [D. Google Cloud Platform (Without Docker)](gcp/README.md)
 - [Docker](#docker)
 - [Judging-day checklist](#judging-day-checklist)
 - [Security notes](#security-notes)
@@ -64,6 +65,19 @@ npm run deploy:check
 ## C. VPS + Caddy
 
 Copy `deploy/Caddyfile.example` and use either the single-hostname block (pointing at the gateway on :8080) or the subdomain blocks. Caddy obtains the certificates. Then run `deploy:configure` to match, `npm start` under a process manager (systemd, pm2 or `docker compose up -d`), and `deploy:check`.
+
+## D. Google Cloud Platform (Without Docker)
+
+Deploy to Google Cloud without installing Docker:
+- **Cloud Run (Source Buildpacks)**: `gcloud run deploy --source .` (managed serverless, auto HTTPS)
+- **App Engine**: `gcloud app deploy app.yaml` (Node.js 22 standard environment)
+- **Compute Engine**: VM with native `systemd` daemon via `deploy/gcp/startup-script.sh`
+
+Run the one-command interactive deployment tool:
+```bash
+./deploy/gcp/deploy.sh
+```
+See the full walkthrough in [deploy/gcp/README.md](gcp/README.md).
 
 ## Docker
 

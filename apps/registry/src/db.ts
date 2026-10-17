@@ -45,6 +45,13 @@ export function openRegistryDb(path: string): Database {
       updated_at    TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS users_wallet ON users (wallet);
+
+    -- Google sign-in sessions (id = SHA-256 of the bearer token; the token itself is never stored).
+    CREATE TABLE IF NOT EXISTS auth_sessions (
+      id      TEXT PRIMARY KEY,
+      user    TEXT NOT NULL,
+      expires INTEGER NOT NULL
+    );
   `);
   migrateLedger(db);
   return db;

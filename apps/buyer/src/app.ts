@@ -20,6 +20,7 @@ import { EXPLORER_URL, NETWORK, env, fromUnits, type Logger } from "@dron/shared
 import { isDirectLocal } from "@dron/x402-kit";
 import { EXAMPLE_TASKS } from "./examples.ts";
 import { TaskInputError, type TaskManager } from "./tasks.ts";
+import type { TaskArchive } from "./archive.ts";
 
 export interface BuyerAppOptions {
   manager: TaskManager;
@@ -27,6 +28,8 @@ export interface BuyerAppOptions {
   apiToken?: string;
   registryUrl: string;
   allowLoopback: boolean;
+  /** Finished tasks from earlier runs (MongoDB Atlas). Optional; reads fall back to it. */
+  archive?: Pick<TaskArchive, "list" | "get">;
 }
 
 export function createBuyerApp(o: BuyerAppOptions) {
@@ -110,8 +113,21 @@ export function createBuyerApp(o: BuyerAppOptions) {
     res.json({ buyer: o.manager.address, network: NETWORK, explorer: EXPLORER_URL, registry: o.registryUrl, examples: EXAMPLE_TASKS, authRequired: Boolean(o.apiToken) });
   });
 
-  app.get("/api/tasks", (_req, res) => {
-    res.json({ tasks: o.manager.list() });
+  const fromArchive = async <T>(fn: (a: NonNullable<BuyerAppOptions["archive"]>) => Promise<T>): Promise<T | undefined> => {
+    if (!o.archive) return undefined;
+    try {
+      return await Promise.race([fn(o.archive), new Promise<undefined>((r) => setTimeout(() => r(undefined), 3000).unref())]);
+    } catch (err) {
+      o.log.warn("task archive read failed", { err: (err as Error).message });
+      return undefined;
+    }
+  };
+
+  app.get("/api/tasks", async (_req, res) => {
+    const live = o.manager.list();
+    const seen = new Set(live.map((t) => t.id));
+    const past = ((await fromArchive((a) => a.list(50))) ?? []).filter((t) => !seen.has(t.id));
+    res.json({ tasks: [...live, ...past].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) });
   });
 
   app.post("/api/tasks", requireAuth, handle((req, res) => {
@@ -120,17 +136,23 @@ export function createBuyerApp(o: BuyerAppOptions) {
     res.status(202).json({ taskId: task.id, sessionId: task.sessionId, status: task.status, events: `/api/tasks/${task.id}/events` });
   }));
 
-  app.get("/api/tasks/:id", (req, res) => {
+  app.get("/api/tasks/:id", async (req, res) => {
     const task = o.manager.get(req.params.id);
-    if (!task) {
+    if (task) {
+      res.json(task);
+      return;
+    }
+    const archived = await fromArchive((a) => a.get(req.params.id));
+    if (!archived) {
       res.status(404).json({ error: "not_found" });
       return;
     }
-    res.json(task);
+    res.json({ ...archived.view, archived: true });
   });
 
-  app.get("/api/tasks/:id/events", (req, res) => {
-    const history = o.manager.events(req.params.id);
+  app.get("/api/tasks/:id/events", async (req, res) => {
+    let history: { seq: number; type: string }[] | undefined = o.manager.events(req.params.id);
+    if (!history) history = (await fromArchive((a) => a.get(req.params.id)))?.events; // a past task: replay, nothing more will come
     if (!history) {
       res.status(404).json({ error: "not_found" });
       return;

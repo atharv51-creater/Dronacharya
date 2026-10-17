@@ -1,0 +1,25 @@
+runtime: nodejs22
+instance_class: F4_1G
+
+entrypoint: npm start
+
+env_variables:
+  NODE_ENV: "production"
+  PORT: "8080"
+  GATEWAY_PORT: "8080"
+  REGISTRY_ALLOW_LOOPBACK: "true"
+  BUYER_ALLOW_LOOPBACK: "true"
+  RPC_URL: "https://sepolia.base.org"
+  FACILITATOR_URL: "https://x402.org/facilitator"
+  REGISTRY_PORT: "4000"
+  REGISTRY_URL: "http://localhost:4000"
+  SCRAPER_PORT: "4101"
+  DATA_PORT: "4102"
+  INFERENCE_PORT: "4103"
+  CHAOS_PORT: "4199"
+  BUYER_PORT: "4200"
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 2
+  target_cpu_utilization: 0.65

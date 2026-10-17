@@ -9,3 +9,4 @@ export * from "./sqlite.ts";
 export * from "./canonical.ts";
 export * from "./gemini.ts";
 export * from "./llm.ts";
+export * from "./mongo.ts";

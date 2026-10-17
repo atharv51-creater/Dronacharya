@@ -49,6 +49,7 @@ export interface StepRecord {
 }
 
 export type ExecEvent =
+  | { type: "step_running"; step: string; label: string; serviceId?: string }
   | { type: "call_started"; step: string; label: string; serviceId: string; why: string; input: unknown; ranking: { serviceId: string; score: number | null }[]; relaxed: string[] }
   | { type: "call_finished"; step: string; label: string; attempt: Attempt }
   | { type: "fallback"; step: string; label: string; from: string; reason: string; next: string | null }
@@ -125,9 +126,9 @@ export class Executor {
   async step(need: Need, kind: StepKind, priority: number): Promise<StepRecord> {
     let rec = this.steps.get(need.key);
     if (rec?.state === "done") return rec;
-    if (rec?.state === "running") return this.waitFor(need.key);
+    if (rec?.state === "running" || rec?.state === "pending") return this.waitFor(need.key);
     rec ??= { key: need.key, kind, label: need.label, state: "pending", priority, attempts: [] };
-    Object.assign(rec, { state: "running", error: undefined, neededUnits: undefined });
+    Object.assign(rec, { state: "pending", error: undefined, neededUnits: undefined });
     this.steps.set(need.key, rec);
     try {
       await this.buy(need, rec);
@@ -179,6 +180,8 @@ export class Executor {
       }
 
       const release = await this.slots.acquire(rec.priority);
+      rec.state = "running";
+      emit({ type: "step_running", step: rec.key, label: rec.label, serviceId: candidate.listing.id });
       let attempt: Attempt;
       try {
         emit({
@@ -258,6 +261,9 @@ export class Executor {
         emit({ type: "fallback", step: rec.key, label: rec.label, from: id, reason, next });
       } finally {
         release();
+        if (rec.state === "running") {
+          rec.state = "pending";
+        }
       }
     }
   }

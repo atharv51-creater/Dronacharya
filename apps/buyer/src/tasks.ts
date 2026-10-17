@@ -111,6 +111,8 @@ export interface TaskManagerOptions {
   balanceOf?: () => Promise<bigint>;
   waitForHeldMs?: number;
   extraSinks?: LedgerSink[];
+  /** Receives a snapshot (view + events) on every status change and settlement, e.g. for MongoDB Atlas. */
+  archive?: (snapshot: { view: TaskView; events: TaskEvent[] }) => void;
 }
 
 const MAX_EVENTS = 2000;
@@ -417,6 +419,13 @@ export class TaskManager {
   }
 
   private persist(run: TaskRun) {
+    if (this.o.archive) {
+      try {
+        this.o.archive({ view: this.view(run), events: [...run.events] });
+      } catch (err) {
+        this.log.warn("could not archive task snapshot", { err });
+      }
+    }
     if (this.o.dataDir === null) return;
     try {
       const dir = `${this.o.dataDir ?? `${REPO_ROOT}.data`}/tasks`;

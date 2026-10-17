@@ -1,0 +1,25 @@
+# Cloud Build configuration for Dronacharya
+# Deploys directly to Cloud Run using Cloud Buildpacks (No local Docker needed)
+steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--source=.'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--memory=1Gi'
+      - '--cpu=1'
+      - '--port=8080'
+      - '--min-instances=1'
+      - '--max-instances=3'
+
+substitutions:
+  _SERVICE_NAME: 'dronacharya'
+  _REGION: 'us-central1'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
