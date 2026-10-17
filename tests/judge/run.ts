@@ -10,6 +10,7 @@
 // reason) and the price check runs through the buyer's payment core, which refuses before paying anyway.
 
 import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import type { Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { decodePaymentResponseHeader } from "@x402/core/http";
@@ -308,8 +309,7 @@ for (const r of results) console.log(`${r.status.padEnd(5)} ${r.id.padEnd(10)} $
 console.log(`${"=".repeat(72)}\n${counts.PASS} passed, ${counts.FAIL} failed, ${counts.SKIP} skipped`);
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-const dir = `${REPO_ROOT}.data/judge`;
-mkdirSync(dir, { recursive: true });
+let dir = `${REPO_ROOT}.data/judge`;
 const md = [
   `# Judge pack report (${new Date().toISOString()})`,
   "",
@@ -321,6 +321,13 @@ const md = [
   "",
   ...results.flatMap((r) => [`## ${r.status} · ${r.title}`, "", ...r.notes.map((n) => `- ${n}`), ""]),
 ].join("\n");
-writeFileSync(`${dir}/report-${stamp}.md`, md);
-console.log(`report: .data/judge/report-${stamp}.md`);
+try {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(`${dir}/report-${stamp}.md`, md);
+} catch {
+  // e.g. a full disk: keep the report anyway
+  dir = tmpdir();
+  writeFileSync(`${dir}/dronacharya-judge-report-${stamp}.md`, md);
+}
+console.log(`report: ${dir}/${dir === tmpdir() ? "dronacharya-judge-" : ""}report-${stamp}.md`);
 process.exit(counts.FAIL ? 1 : 0);

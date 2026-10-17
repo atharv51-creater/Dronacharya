@@ -103,7 +103,7 @@ async function assertAllowed(url: string, signal?: AbortSignal): Promise<void> {
 
 // ---------- fetching ----------
 
-async function fetchHtml(url: string, signal?: AbortSignal): Promise<string | null> {
+export async function fetchHtml(url: string, signal?: AbortSignal): Promise<string | null> {
   if (!url.startsWith(SITE)) throw new HttpError(400, "off_site", "only books.toscrape.com is scraped");
   await assertAllowed(url, signal);
   return gate(async () => {

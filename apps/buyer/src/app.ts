@@ -8,6 +8,7 @@
 //   POST /api/tasks/:id/start      run a dry-run (planned) task
 //   POST /api/tasks/:id/cancel
 //   GET  /api/meta                 buyer address, registry, example tasks
+//   GET  /api/auth/mode            how the UI may run Scout from here: { local, google, token, dailyCapUsdc, walletBalanceUsdc, maxBudgetUsdc }
 //
 // This API spends the buyer's (testnet) money, so every POST needs `Authorization: Bearer $BUYER_API_TOKEN`
 // unless it comes from this machine.
@@ -15,7 +16,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import express, { type NextFunction, type Request, type Response } from "express";
-import { EXPLORER_URL, NETWORK, type Logger } from "@dron/shared";
+import { EXPLORER_URL, NETWORK, env, fromUnits, type Logger } from "@dron/shared";
 import { isDirectLocal } from "@dron/x402-kit";
 import { EXAMPLE_TASKS } from "./examples.ts";
 import { TaskInputError, type TaskManager } from "./tasks.ts";
@@ -45,6 +46,14 @@ export function createBuyerApp(o: BuyerAppOptions) {
     next();
   });
 
+  // Local = the buyer's loopback rule AND not a browser page from another site. Without the Origin check any
+  // website open in the operator's browser could POST to http://localhost:4200 and spend the wallet.
+  const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+  const isLocal = (req: Request): boolean => {
+    const origin = req.get("origin");
+    return o.allowLoopback && isDirectLocal(req) && (!origin || LOCAL_ORIGIN.test(origin));
+  };
+
   const authorised = (req: Request): boolean => {
     const header = req.get("authorization") ?? "";
     if (o.apiToken && header.startsWith("Bearer ")) {
@@ -54,7 +63,7 @@ export function createBuyerApp(o: BuyerAppOptions) {
     }
     // Only a DIRECT request from this machine skips the token: anything that came through the gateway or a
     // tunnel (which also connect from loopback) is remote.
-    return o.allowLoopback && isDirectLocal(req);
+    return isLocal(req);
   };
   const requireAuth = (req: Request, res: Response, next: NextFunction) => {
     if (authorised(req)) return next();
@@ -74,6 +83,27 @@ export function createBuyerApp(o: BuyerAppOptions) {
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, buyer: o.manager.address });
+  });
+
+  // How the UI may run Scout from where THIS request comes from. Nothing secret, nothing spent:
+  //   local  - this request would pass the loopback rule above (direct, no forwarding headers)
+  //   google - the server can verify Google sign-in      token - BUYER_API_TOKEN is configured
+  let balanceCache: { at: number; units: bigint | null } = { at: 0, units: null };
+  app.get("/api/auth/mode", async (req, res) => {
+    if (Date.now() - balanceCache.at > 15_000) {
+      balanceCache = { at: Date.now(), units: await o.manager.walletBalance().catch(() => null) };
+    }
+    const google = Boolean(env("GOOGLE_CLIENT_ID"));
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      local: isLocal(req),
+      google,
+      token: Boolean(o.apiToken),
+      // The per-email daily cap the gateway applies to Google sessions (not to local or operator-key runs).
+      dailyCapUsdc: google ? env("SCOUT_DAILY_CAP_USDC", "0.20")! : null,
+      walletBalanceUsdc: balanceCache.units === null ? null : fromUnits(balanceCache.units),
+      maxBudgetUsdc: fromUnits(o.manager.maxBudgetUnits),
+    });
   });
 
   app.get("/api/meta", (_req, res) => {

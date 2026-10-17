@@ -129,6 +129,16 @@ export class TaskManager {
     return this.o.account.address;
   }
 
+  /** Largest budget one task may have (read-only; enforced in create/topUp). */
+  get maxBudgetUnits(): bigint {
+    return this.maxBudget;
+  }
+
+  /** The buyer wallet's USDC balance (same source as the pre-flight check). */
+  walletBalance(): Promise<bigint> {
+    return (this.o.balanceOf ?? (() => usdcBalance(this.o.account.address)))();
+  }
+
   create(input: TaskRequest): ReturnType<TaskManager["view"]> {
     const request = this.validate(input);
     const id = `task_${randomUUID().slice(0, 8)}`;

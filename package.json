@@ -16,12 +16,16 @@
     "apps/sellers/*"
   ],
   "scripts": {
-    "start": "concurrently --kill-others-on-fail --names registry,scraper,fx,summary,chaos,buyer,gateway --prefix-colors blue,green,yellow,magenta,red,cyan,gray \"npm:start:registry\" \"npm:start:scraper\" \"npm:start:fx\" \"npm:start:summary\" \"npm:start:chaos\" \"npm:start:buyer\" \"npm:start:gateway\"",
+    "start": "concurrently --kill-others-on-fail --names registry,scraper,fx,summary,chaos,guild,buyer,gateway --prefix-colors blue,green,yellow,magenta,red,white,cyan,gray \"npm:start:registry\" \"npm:start:scraper\" \"npm:start:fx\" \"npm:start:summary\" \"npm:start:chaos\" \"npm:start:guild\" \"npm:start:buyer\" \"npm:start:gateway\"",
+    "start:all": "npm start",
+    "build:frontend": "npm --prefix dronacharya-frontend ci && npm --prefix dronacharya-frontend run build",
+    "start:prod": "npm run build:frontend && npm start",
     "start:registry": "tsx apps/registry/src/index.ts",
     "start:scraper": "tsx apps/sellers/scraper/src/index.ts",
     "start:fx": "tsx apps/sellers/data/src/index.ts",
     "start:summary": "tsx apps/sellers/inference/src/index.ts",
     "start:chaos": "tsx apps/sellers/chaos/src/index.ts",
+    "start:guild": "tsx apps/sellers/guild/src/index.ts",
     "start:buyer": "tsx apps/buyer/src/index.ts",
     "start:gateway": "tsx apps/gateway/src/index.ts",
     "typecheck": "tsc -p tsconfig.json",
@@ -51,6 +55,7 @@
     "ajv-formats": "3.0.1",
     "cheerio": "1.2.0",
     "express": "5.1.0",
+    "google-auth-library": "11.1.0",
     "robots-parser": "3.0.1",
     "viem": "2.57.2"
   },

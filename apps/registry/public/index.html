@@ -108,6 +108,22 @@
       </form>
     </details>
 
+    <details class="card register" id="buyer-reg-details" open>
+      <summary>Register as Buyer / User (Dronacharya Portal)</summary>
+      <p class="hint">Register an agent buyer account to invoke paid services and view payment audit logging.</p>
+      <form id="buyer-reg-form" novalidate>
+        <div class="grid">
+          <label>Organization / Name <input name="name" required placeholder="Acme Buyer Org"></label>
+          <label>Role <select name="role"><option value="buyer">buyer</option><option value="user">user</option></select></label>
+          <label class="wide">Wallet Address <input name="wallet" required placeholder="0x... or GLHI..."></label>
+          <label>Network <select name="network"><option value="Base Sepolia · testnet">Base Sepolia (testnet)</option><option value="Base Mainnet">Base Mainnet</option></select></label>
+          <label class="wide">Email (optional) <input name="email" type="email" placeholder="agent@org.ai"></label>
+        </div>
+        <button type="submit">Register as Buyer</button>
+        <p class="status" id="buyer-reg-status" role="status"></p>
+      </form>
+    </details>
+
     <footer class="foot">
       API: <code>GET /api/services?category=scraping&amp;maxPrice=0.005</code> ·
       <code>POST /api/services</code> · <code>GET /api/sellers/:id/reputation</code>

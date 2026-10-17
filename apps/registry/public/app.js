@@ -138,6 +138,30 @@ $("reg-form").addEventListener("submit", async (e) => {
   if (res.ok) load();
 });
 
+const buyerForm = $("buyer-reg-form");
+if (buyerForm) {
+  buyerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const out = $("buyer-reg-status");
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    if (!data.name || !data.wallet) {
+      out.textContent = "Name and wallet address are required.";
+      out.classList.add("error");
+      return;
+    }
+    const res = await fetch("api/users/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const body = await res.json().catch(() => ({}));
+    out.classList.toggle("error", !res.ok);
+    out.textContent = res.ok
+      ? `Registered "${body.user?.name}" (${body.user?.role})! Logged in Registry.`
+      : (body.message ?? body.error ?? "Registration failed");
+  });
+}
+
 // Restore filters from the URL, then load.
 const initial = new URLSearchParams(location.search);
 const restore = { category: "f-category", maxPrice: "f-max", minSuccessRate: "f-success", sort: "f-sort", q: "f-q" };

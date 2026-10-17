@@ -141,6 +141,29 @@ async function reconcile() {
   }
 }
 
+async function loadUsers() {
+  try {
+    const res = await (await fetch("api/users")).json();
+    const tbody = $("users-tbody");
+    if (!tbody) return;
+    tbody.replaceChildren(
+      ...(res.users || []).map((u) =>
+        el(
+          "tr",
+          {},
+          el("td", { class: "bold" }, u.name),
+          el("td", {}, el("span", { class: "pill" }, u.role)),
+          el("td", { class: "mono" }, u.network),
+          el("td", {}, link(`${explorer}/address/${u.wallet}`, short(u.wallet))),
+          el("td", { class: "ok" }, u.status || "active")
+        )
+      )
+    );
+  } catch {
+    // optional
+  }
+}
+
 async function loadWallets() {
   try {
     const data = await (await fetch("api/wallets")).json();
@@ -185,4 +208,6 @@ if (initial) $("f-session").value = initial;
 await loadRows();
 connect();
 loadWallets();
+loadUsers();
 setInterval(loadWallets, 60_000);
+setInterval(loadUsers, 60_000);

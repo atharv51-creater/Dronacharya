@@ -7,6 +7,7 @@
 // Then restart (npm start), start your tunnel, and run npm run deploy:check.
 
 import { envInt, loadEnv } from "@dron/shared";
+import { guildRoster } from "@dron/seller-guild/roster";
 import { setEnvValues } from "./env-file.ts";
 
 loadEnv();
@@ -20,6 +21,7 @@ const SERVICES: [string, string, string, number][] = [
   ["INFERENCE_PUBLIC_URL", "/summary", "summary", envInt("INFERENCE_PORT", 4103)],
   ["CHAOS_PUBLIC_URL", "/chaos", "chaos", envInt("CHAOS_PORT", 4199)],
   ["BUYER_PUBLIC_URL", "/buyer", "buyer", envInt("BUYER_PORT", 4200)],
+  ...guildRoster(envInt("GUILD_BASE_PORT", 4111)).map((m): [string, string, string, number] => [`${m.env}_PUBLIC_URL`, m.prefix, m.id, m.port]),
 ];
 
 let values: Record<string, string>;

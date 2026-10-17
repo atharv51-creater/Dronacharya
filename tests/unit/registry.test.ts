@@ -146,4 +146,51 @@ describe("registry API", () => {
     assert.equal((await fetch(`${base}/api/services/llm`, { method: "DELETE" })).status, 401);
     assert.equal((await fetch(`${base}/api/services/llm`, { method: "DELETE", headers: admin })).status, 204);
   });
+
+  it("registers a buyer user and lists users", async () => {
+    const regRes = await fetch(`${base}/api/users/register`, {
+      method: "POST",
+      headers: json,
+      body: JSON.stringify({
+        name: "Acme AI Buyer",
+        role: "buyer",
+        wallet: "0x1234567890123456789012345678901234567890",
+        network: "Base Sepolia · testnet",
+        email: "buyer@acme.ai",
+      }),
+    });
+    assert.equal(regRes.status, 201);
+    const regBody = await body(regRes);
+    assert.equal(regBody.ok, true);
+    assert.equal(regBody.user.name, "Acme AI Buyer");
+    assert.equal(regBody.user.role, "buyer");
+
+    const usersRes = await fetch(`${base}/api/users`);
+    assert.equal(usersRes.status, 200);
+    const usersBody = await body(usersRes);
+    assert.ok(usersBody.count >= 1);
+    assert.ok(usersBody.users.some((u: { name: string }) => u.name === "Acme AI Buyer"));
+  });
+
+  it("authenticates admin and returns audit report", async () => {
+    const loginRes = await fetch(`${base}/api/admin/login`, {
+      method: "POST",
+      headers: json,
+      body: JSON.stringify({ token: "test-admin-token" }),
+    });
+    assert.equal(loginRes.status, 200);
+    const loginBody = await body(loginRes);
+    assert.equal(loginBody.ok, true);
+    assert.equal(loginBody.isAdmin, true);
+
+    const auditRes = await fetch(`${base}/api/admin/audit-report`);
+    assert.equal(auditRes.status, 200);
+    const audit = await body(auditRes);
+    assert.equal(audit.registryStatus, "healthy");
+    assert.ok(audit.summary);
+    assert.ok(audit.counts);
+    assert.ok(audit.categories);
+    assert.equal(audit.summary.discrepancies, 0);
+  });
 });
+

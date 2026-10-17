@@ -12,7 +12,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import type { Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { decodePaymentRequiredHeader } from "@x402/core/http";
-import { REPO_ROOT, addressUrl, env, loadEnv, type Listing } from "@dron/shared";
+import { REPO_ROOT, addressUrl, env, envInt, loadEnv, type Listing } from "@dron/shared";
+import { guildRoster } from "@dron/seller-guild/roster";
 
 loadEnv();
 const allowHttp = process.argv.includes("--allow-http");
@@ -107,6 +108,7 @@ const wallets: [string, string | undefined][] = [
   ["fx-rates `payTo`", env("DATA_PAY_TO")],
   ["hindi-summary `payTo`", env("INFERENCE_PAY_TO")],
   ["cheap-scraper `payTo` (fixtures)", env("CHAOS_PAY_TO")],
+  ...guildRoster().map((m): [string, string | undefined] => [`${m.id} \`payTo\``, env(`${m.env}_PAY_TO`)]),
 ];
 const md = [
   "| Service | URL |",
@@ -118,6 +120,7 @@ const md = [
   `| fx-rates | ${trim(urls.fx)}/rate |`,
   `| hindi-summary | ${trim(urls.summary)}/summarise |`,
   `| cheap-scraper (fixtures) | ${trim(urls.chaos)}/ |`,
+  ...guildRoster(envInt("GUILD_BASE_PORT", 4111)).map((m) => `| ${m.id} | ${trim(env(`${m.env}_PUBLIC_URL`, `http://localhost:${m.port}`)!)}/listing |`),
   "",
   "| Wallet | Address (Base Sepolia) |",
   "|---|---|",

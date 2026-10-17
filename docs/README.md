@@ -81,8 +81,9 @@ Scout finds them in a registry, pays a fraction of a cent per call, and guarante
 | **fx-rates** (data) | One currency pair per call (ECB reference rates) | `4102` |
 | **hindi-summary** (inference) | Up to 2 texts per call, summarised in Hindi by Gemini | `4103` |
 | **cheap-scraper** (test fixture) | Deliberately misbehaving seller: overpriced 402, wrong payTo, junk output, failure | `4199` |
+| **Seller guild** (11 sellers) | `rich-shelf`, `book-inspector`, `fx-global`, `fx-trend`, `nvidia-hindi`, `openrouter-hindi`, `indic-translator`, `sentiment-tagger`, `text-insights`, `price-advisor`, `listing-auditor`: one process, each its own seller and wallet ([details](#seller-guild-11-more-sellers)) | `4111`–`4121` |
 | **Buyer agent** (Scout) | Takes a task and a budget, plans, picks sellers, pays, validates, explains; console at `/` | `4200` |
-| **Gateway** | One public port for everything (`/registry`, `/scraper`, `/fx`, `/summary`, `/chaos`, `/buyer`) | `8080` |
+| **Gateway** | One public port for everything (`/registry`, `/scraper`, `/fx`, `/summary`, `/chaos`, `/buyer`, and `/<id>` for each guild seller) | `8080` |
 
 Every seller charges per request through HTTP 402 and settles in USDC on Base Sepolia. Every paid call ends in its own on-chain transfer with its own transaction hash.
 
@@ -206,6 +207,28 @@ Each seller also serves `GET /health` and `GET /listing` (free).
 | Upstream site or model unavailable | `502` / `503` | No |
 | Handler too slow | `504 handler_timeout` | No |
 | Output breaks the seller's own schema (including a "Hindi" summary that isn't in Devanagari) | `500 output_failed_self_check` | No |
+
+### Seller guild (11 more sellers)
+
+`apps/sellers/guild` runs 11 more seller agents in one process (`npm run start:guild`, included in `npm start`). Each is a separate seller: its own `sellerId`, `payTo` wallet (`<NAME>_PAY_TO`, filled by `npm run wallets:new`), port (`GUILD_BASE_PORT` 4111 + position) and listing. The roster lives in `apps/sellers/guild/src/roster.ts`; the gateway, `deploy:configure`, `deploy:check` and the wallet script all read it. Every answer is checked before it is sold, so a bad one is a 4xx/5xx and is never charged.
+
+| Seller | Route | Price | What it adds | Scout uses it? |
+|---|---|---|---|---|
+| rich-shelf | `GET /scrape?page=N[&category=]` | 0.006 | shelf-scraper's page **plus** each book's exact stock count, review count, own category and cover image | Yes: same input, superset output (fallback for book pages) |
+| book-inspector | `GET /inspect?url=<product page>` | 0.002 | Everything one product page shows: UPC, prices excl./incl. tax, stock count, reviews, category, description, image | No (new capability) |
+| fx-global | `GET /rate?from=GBP&to=AED` | 0.0015 | 166 currencies from ExchangeRate-API's open feed (ECB data has 30; no AED, SAR, PKR, NGN...) | Yes: same contract as fx-rates (fallback, and the only one for non-ECB currencies) |
+| fx-trend | `GET /trend?from=GBP&to=INR[&days=30]` | 0.002 | Latest ECB rate plus 7-90 day min, max, mean and % change | Yes: its answer includes `rate` |
+| nvidia-hindi | `POST /summarise` | 0.010 | Hindi summaries with NVIDIA Nemotron (Ultra, falling back to Super) | Yes: same contract as hindi-summary |
+| openrouter-hindi | `POST /summarise` | 0.012 | Hindi summaries via OpenRouter (DeepSeek V4 Flash, falling back to Mistral Small) | Yes: same contract as hindi-summary |
+| indic-translator | `POST /translate` | 0.008 | Translation into hi, mr, bn, pa, gu, ta, te, kn, ml or ur (OpenRouter); output checked to be in the target script | No (new capability) |
+| sentiment-tagger | `POST /analyse` | 0.006 | Per text: sentiment, score -1..1, tone, genre tags, audience (NVIDIA Nemotron) | No (new capability) |
+| text-insights | `POST /analyse` | 0.001 | Deterministic (no LLM): words, sentences, reading time, Flesch reading ease, script, RAKE keyphrases | No (new capability) |
+| price-advisor | `GET /advise?category=scraping` | 0.001 | **For sellers:** a competitive price from live registry data (competitors' prices, success rates, cost per good result), with reasons | No (helps sellers) |
+| listing-auditor | `POST /audit` `{ listing }` | 0.005 | **For sellers:** runs the registry's own acceptance rules on a draft listing, checks the id is free, compares the price, flags weak schemas, adds AI suggestions and a rewritten description | No (helps sellers) |
+
+Because the five drop-in sellers share a contract with an existing one, Scout's rules (R1-R8) now have real choices: an incumbent that fails, refuses or is struck in a task falls back to the next seller instead of leaving a gap. Prices are set at or above the incumbents, so estimates stay the same unless reputation changes the ranking.
+
+LLM providers (server-side only): `NVIDIA_API_KEY` / `NVIDIA_MODELS` and `OPENROUTER_API_KEY` / `OPENROUTER_MODELS` (comma-separated, tried in order). Without a key, the sellers that need it answer 503 and are never charged; `listing-auditor` still returns its rule-based audit.
 
 ### Chaos fixtures (`cheap-scraper`)
 

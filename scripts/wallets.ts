@@ -11,12 +11,13 @@ import { randomBytes } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { REPO_ROOT, addressUrl } from "@dron/shared";
+import { guildRoster } from "@dron/seller-guild/roster";
 
 const envPath = `${REPO_ROOT}.env`;
 const secretsDir = `${REPO_ROOT}.secrets`;
 const sellerKeysPath = `${secretsDir}/seller-keys.json`;
 
-const PAY_TO_VARS = ["SCRAPER_PAY_TO", "DATA_PAY_TO", "INFERENCE_PAY_TO", "CHAOS_PAY_TO", "CHAOS_ALT_PAY_TO"] as const;
+const PAY_TO_VARS = ["SCRAPER_PAY_TO", "DATA_PAY_TO", "INFERENCE_PAY_TO", "CHAOS_PAY_TO", "CHAOS_ALT_PAY_TO", ...guildRoster().map((m) => `${m.env}_PAY_TO`)];
 const BUYER_VARS = ["BUYER_PRIVATE_KEY", "BUYER_SPARE_PRIVATE_KEY"] as const;
 
 if (!existsSync(envPath)) {

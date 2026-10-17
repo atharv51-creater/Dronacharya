@@ -30,6 +30,21 @@ export function openRegistryDb(path: string): Database {
       start_block INTEGER,
       created_at  TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id            TEXT PRIMARY KEY,
+      name          TEXT NOT NULL,
+      role          TEXT NOT NULL,
+      network       TEXT NOT NULL,
+      wallet        TEXT NOT NULL,
+      email         TEXT,
+      category      TEXT,
+      service_id    TEXT,
+      status        TEXT NOT NULL DEFAULT 'active',
+      created_at    TEXT NOT NULL,
+      updated_at    TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS users_wallet ON users (wallet);
   `);
   migrateLedger(db);
   return db;
@@ -179,3 +194,109 @@ export class ServiceStore {
     return Number(this.db.prepare(`DELETE FROM services WHERE id = ?`).run(id).changes) === 1;
   }
 }
+
+export interface UserRecord {
+  id: string;
+  name: string;
+  role: "buyer" | "seller" | "user";
+  network: string;
+  wallet: string;
+  email?: string;
+  category?: string;
+  serviceId?: string;
+  status: "active" | "verified" | "pending";
+  createdAt: string;
+  updatedAt: string;
+}
+
+function rowToUser(row: Record<string, unknown>): UserRecord {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    role: (String(row.role) as UserRecord["role"]) || "user",
+    network: String(row.network),
+    wallet: String(row.wallet),
+    email: row.email ? String(row.email) : undefined,
+    category: row.category ? String(row.category) : undefined,
+    serviceId: row.service_id ? String(row.service_id) : undefined,
+    status: (String(row.status) as UserRecord["status"]) || "active",
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  };
+}
+
+export class UserStore {
+  constructor(private readonly db: Database) {}
+
+  all(): UserRecord[] {
+    return (this.db.prepare(`SELECT * FROM users ORDER BY created_at DESC`).all() as Record<string, unknown>[]).map(rowToUser);
+  }
+
+  get(id: string): UserRecord | undefined {
+    const row = this.db.prepare(`SELECT * FROM users WHERE id = ?`).get(id) as Record<string, unknown> | undefined;
+    return row ? rowToUser(row) : undefined;
+  }
+
+  getByWallet(wallet: string): UserRecord | undefined {
+    const row = this.db.prepare(`SELECT * FROM users WHERE LOWER(wallet) = LOWER(?) ORDER BY created_at DESC LIMIT 1`).get(wallet) as Record<string, unknown> | undefined;
+    return row ? rowToUser(row) : undefined;
+  }
+
+  save(user: Omit<UserRecord, "createdAt" | "updatedAt">): { record: UserRecord; created: boolean } {
+    const now = new Date().toISOString();
+    const existing = this.get(user.id);
+    if (existing) {
+      this.db
+        .prepare(
+          `UPDATE users SET name = ?, role = ?, network = ?, wallet = ?, email = ?, category = ?, service_id = ?, status = ?, updated_at = ? WHERE id = ?`
+        )
+        .run(
+          user.name,
+          user.role,
+          user.network,
+          user.wallet,
+          user.email ?? null,
+          user.category ?? null,
+          user.serviceId ?? null,
+          user.status ?? "active",
+          now,
+          user.id
+        );
+      return {
+        record: { ...existing, ...user, updatedAt: now },
+        created: false,
+      };
+    }
+    this.db
+      .prepare(
+        `INSERT INTO users (id, name, role, network, wallet, email, category, service_id, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .run(
+        user.id,
+        user.name,
+        user.role,
+        user.network,
+        user.wallet,
+        user.email ?? null,
+        user.category ?? null,
+        user.serviceId ?? null,
+        user.status ?? "active",
+        now,
+        now
+      );
+    return {
+      record: {
+        ...user,
+        email: user.email,
+        category: user.category,
+        serviceId: user.serviceId,
+        status: user.status ?? "active",
+        createdAt: now,
+        updatedAt: now,
+      },
+      created: true,
+    };
+  }
+}
+

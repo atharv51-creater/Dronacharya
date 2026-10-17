@@ -1,8 +1,9 @@
-// Gateway (port 8080): put ONE tunnel in front of this (ngrok static domain, cloudflared) and every
-// service is public under a path. Run `npm run deploy:configure -- https://<your-host>` first so each
-// service knows its public URL.
+// Gateway (port 8080): the one public origin. Serves the built web UI (dronacharya-frontend/dist) and all
+// /api routes, plus each service under its path prefix for sellers and judges. Put ONE tunnel in front of it.
 
-import { createLogger, envInt, env, loadEnv } from "@dron/shared";
+import { existsSync } from "node:fs";
+import { REPO_ROOT, createLogger, env, envInt, loadEnv, toUnits } from "@dron/shared";
+import { guildRoster } from "@dron/seller-guild/roster";
 import { createGateway, parseRoutes } from "./proxy.ts";
 
 loadEnv();
@@ -18,9 +19,26 @@ const routes = parseRoutes(
       `/summary=${local("INFERENCE_PORT", 4103)}`,
       `/chaos=${local("CHAOS_PORT", 4199)}`,
       `/buyer=${local("BUYER_PORT", 4200)}`,
+      ...guildRoster(envInt("GUILD_BASE_PORT", 4111)).map((m) => `${m.prefix}=http://127.0.0.1:${m.port}`),
     ].join(","),
 );
 
-createGateway(routes, { log: (m, f) => log.warn(m, f) }).listen(port, () => {
-  log.info(`listening on :${port}`, { routes: Object.fromEntries(routes.map((r) => [`${r.prefix}/`, r.target.origin])) });
+const staticDir = env("FRONTEND_DIST", `${REPO_ROOT}dronacharya-frontend/dist`)!;
+const buyerToken = env("BUYER_API_TOKEN");
+if (!buyerToken) log.warn("BUYER_API_TOKEN is not set: signed-in users cannot run Scout tasks through the UI");
+
+createGateway(routes, {
+  log: (m, f) => log.warn(m, f),
+  staticDir,
+  api: {
+    registry: new URL(local("REGISTRY_PORT", 4000)),
+    buyer: new URL(local("BUYER_PORT", 4200)),
+    buyerToken,
+    dailyCapUnits: toUnits(env("SCOUT_DAILY_CAP_USDC", "0.20")!),
+  },
+}).listen(port, () => {
+  log.info(`listening on :${port}`, {
+    ui: existsSync(`${staticDir}/index.html`) ? staticDir : "not built (npm run build:frontend)",
+    routes: Object.fromEntries(routes.map((r) => [`${r.prefix}/`, r.target.origin])),
+  });
 });
